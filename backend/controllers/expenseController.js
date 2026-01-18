@@ -98,6 +98,11 @@ const createExpense = async (req, res) => {
     // We append groupId to it for convenience if frontend relied on it
     const createdExpense = { ...newExpense, groupId: group._id };
     res.status(201).json(createdExpense);
+
+    // Send Email Notification Async (don't await to avoid delaying response)
+    import('../utils/emailService.js').then(({ sendExpenseNotification }) => {
+        sendExpenseNotification(newExpense, group, req.user).catch(err => console.error("Email error:", err));
+    });
 };
 
 // @desc    Get expenses by group

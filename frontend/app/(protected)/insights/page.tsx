@@ -10,7 +10,8 @@ import {
     ArrowDownRight,
     DollarSign,
     Calendar,
-    Wallet
+    Wallet,
+    Sparkles
 } from "lucide-react"
 import {
     LineChart,
@@ -39,6 +40,7 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import AITipsCard from "@/components/AITipsCard"
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
@@ -53,6 +55,9 @@ export default function InsightsPage() {
     const [monthlyData, setMonthlyData] = useState<any[]>([])
     const [categoryData, setCategoryData] = useState<any[]>([])
     const [groupData, setGroupData] = useState<any[]>([])
+
+    // AI Tips State
+    const [tips, setTips] = useState<any[]>([])
 
     // Derived Stats
     const [topCategory, setTopCategory] = useState({ name: "N/A", amount: 0 })
@@ -79,9 +84,16 @@ export default function InsightsPage() {
                 }
                 setUserId(currentUserId)
 
-                const response = await fetch("http://localhost:5000/api/groups/my-groups", {
-                    headers: { Authorization: `Bearer ${token}` }
-                })
+                const headers = { Authorization: `Bearer ${token}` };
+
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/groups/my-groups`, { headers })
+
+                // Fetch Tips
+                const tipsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/insights/tips`, { headers })
+                if (tipsResponse.ok) {
+                    const tipsData = await tipsResponse.json();
+                    setTips(tipsData)
+                }
 
                 if (response.ok) {
                     const groupsData = await response.json()
@@ -114,13 +126,6 @@ export default function InsightsPage() {
                 if (!exp.splits || !exp.paidBy) return
 
                 // 1. Identify My Share
-                // If I paid, my share is my split (what I consumed)
-                // If someone else paid, my share is my split (what I owe)
-                // Basically always "my split amount" represents my consumption/cost? 
-                // Wait, if I paid 100 split equally (50 me, 50 him). My cost is 50.
-                // If he paid 100 split equally. My cost is 50.
-                // So "Spent" = "My Split Amount".
-
                 const mySplit = exp.splits.find((s: any) => s.user && (s.user._id || s.user).toString() === uid)
 
                 if (mySplit) {
@@ -162,11 +167,7 @@ export default function InsightsPage() {
 
         const monthArray = Object.entries(monthlyMap)
             .map(([name, uv]) => ({ name, uv }))
-            // Sort by date (trickier with string keys, but simple implementation: just reverse if chronological?) 
-            // Better to re-sort:
-            .sort((a, b) => new Date(a.name).getTime() - new Date(b.name).getTime()) // This won't work well on "Jan 2024". 
-        // Simple assumption: Data is relatively recent. 
-        // Logic fix: 
+            .sort((a, b) => new Date(a.name).getTime() - new Date(b.name).getTime())
         setMonthlyData(monthArray)
 
         const grpArray = Object.values(groupMap)
@@ -191,6 +192,21 @@ export default function InsightsPage() {
                     </Button>
                 </div>
             </div>
+
+            {/* AI Tips Section */}
+            {tips.length > 0 && (
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-indigo-600" />
+                        <h2 className="text-lg font-semibold text-slate-800">AI Financial Insights</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {tips.map((tip, index) => (
+                            <AITipsCard key={index} tip={tip} />
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -297,7 +313,7 @@ export default function InsightsPage() {
                                         fill="#8884d8"
                                         paddingAngle={5}
                                         dataKey="value"
-                                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                        label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                                     >
                                         {categoryData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

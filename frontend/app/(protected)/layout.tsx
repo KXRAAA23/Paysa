@@ -22,6 +22,8 @@ import { Button } from "@/components/ui/button"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
+import SettlementReminderModal from "@/components/SettlementReminderModal"
+
 export default function ProtectedLayout({
     children,
 }: {
@@ -32,17 +34,48 @@ export default function ProtectedLayout({
     const [loading, setLoading] = useState(true)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
+    // Settlement Reminder State
+    const [isReminderOpen, setIsReminderOpen] = useState(false);
+    const [reminderData, setReminderData] = useState({ totalBalance: 0, pendingSettlements: 0 });
+
     useEffect(() => {
         const token = localStorage.getItem("token")
         if (!token) {
             router.push("/login")
         } else {
             setLoading(false)
+            checkSettlementStatus();
         }
     }, [router])
 
+    const checkSettlementStatus = async () => {
+        // defined check logic
+        const hasSeen = sessionStorage.getItem('hasSeenSettlementReminder');
+        if (hasSeen) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/expenses/balance`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                // Check if user OWES money (negative balance)
+                if (data.totalBalance < 0 && data.pendingSettlements > 0) {
+                    setReminderData(data);
+                    setIsReminderOpen(true);
+                    sessionStorage.setItem('hasSeenSettlementReminder', 'true');
+                }
+            }
+        } catch (error) {
+            console.error("Failed to fetch balance for reminder", error);
+        }
+    };
+
     const handleLogout = () => {
         localStorage.removeItem("token")
+        sessionStorage.removeItem("hasSeenSettlementReminder") // Clear session state on logout
         router.push("/login")
     }
 
@@ -60,6 +93,12 @@ export default function ProtectedLayout({
 
     return (
         <div className="min-h-screen bg-muted/40 flex">
+            <SettlementReminderModal
+                isOpen={isReminderOpen}
+                onClose={() => setIsReminderOpen(false)}
+                data={reminderData}
+            />
+
             {/* Desktop Sidebar */}
             <aside className="hidden md:flex w-64 flex-col bg-background border-r h-screen sticky top-0">
                 <div className="p-6">

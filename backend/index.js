@@ -10,6 +10,7 @@ import userRoutes from './routes/userRoutes.js';
 import groupRoutes from './routes/groupRoutes.js';
 import activityRoutes from './routes/activityRoutes.js';
 import expenseRoutes from './routes/expenseRoutes.js';
+import insightRoutes from './routes/insightRoutes.js';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/insights', insightRoutes);
 
 app.get('/', (req, res) => {
     res.send('API is running...');
