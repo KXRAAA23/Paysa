@@ -118,7 +118,7 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
 
     // AI Analysis State
     const [isAnalyzing, setIsAnalyzing] = useState(false)
-    const [scannedItems, setScannedItems] = useState<{ name: string, amount: number, type: string }[]>([])
+    const [scannedItems, setScannedItems] = useState<{ name: string, amount: number | string, type: string }[]>([])
     const [showConfirmationModal, setShowConfirmationModal] = useState(false)
     const [confirmationData, setConfirmationData] = useState<any>(null)
 
@@ -373,7 +373,12 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
             formData.append('paidBy', payerId)
             formData.append('splits', JSON.stringify(splits))
             if (scannedItems.length > 0) {
-                formData.append('items', JSON.stringify(scannedItems))
+                // Ensure amounts are numbers
+                const processedItems = scannedItems.map(item => ({
+                    ...item,
+                    amount: typeof item.amount === 'string' ? parseFloat(item.amount) || 0 : item.amount
+                }))
+                formData.append('items', JSON.stringify(processedItems))
             }
             if (billFile) {
                 formData.append('bill', billFile)
@@ -1009,29 +1014,90 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                     </div>
                                 </div>
 
-                                {/* Scanned Items Breakdown */}
+                                {/* Scanned Items Breakdown (Editable) */}
                                 {scannedItems.length > 0 && (
-                                    <div className="space-y-2 animate-in slide-in-from-top-2">
+                                    <div className="space-y-3 animate-in slide-in-from-top-2">
                                         <div className="flex items-center justify-between">
                                             <Label>Item Breakdown</Label>
-                                            <Button type="button" variant="ghost" size="sm" className="h-6 text-xs text-muted-foreground" onClick={() => setScannedItems([])}>Clear</Button>
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-7 text-xs"
+                                                    onClick={() => setScannedItems([...scannedItems, { name: "", amount: 0, type: "Food" }])}
+                                                >
+                                                    <Plus className="h-3 w-3 mr-1" /> Add Item
+                                                </Button>
+                                                <Button type="button" variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={() => setScannedItems([])}>Clear All</Button>
+                                            </div>
                                         </div>
-                                        <div className="border rounded-md divide-y max-h-40 overflow-y-auto">
+                                        <div className="border rounded-md divide-y max-h-60 overflow-y-auto bg-slate-50/50">
                                             {scannedItems.map((item, idx) => (
-                                                <div key={idx} className="flex items-center justify-between p-2 text-sm">
-                                                    <div className="flex items-center gap-2">
-                                                        <Badge variant="outline" className={`${item.type === 'Veg' ? 'border-green-500 text-green-700 bg-green-50' :
-                                                            item.type === 'Non-Veg' ? 'border-red-500 text-red-700 bg-red-50' :
-                                                                item.type === 'Alcohol' ? 'border-purple-500 text-purple-700 bg-purple-50' :
-                                                                    'border-slate-200 text-slate-600'
-                                                            }`}>
-                                                            {item.type}
-                                                        </Badge>
-                                                        <span className="truncate max-w-[150px]">{item.name}</span>
+                                                <div key={idx} className="flex items-center gap-2 p-2">
+                                                    {/* Type Selector (Optional, kept simple for now) */}
+                                                    <div className="w-[80px]">
+                                                        <select
+                                                            className="h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
+                                                            value={item.type}
+                                                            onChange={(e) => {
+                                                                const newItems = [...scannedItems]
+                                                                newItems[idx].type = e.target.value
+                                                                setScannedItems(newItems)
+                                                            }}
+                                                        >
+                                                            <option value="Food">Food</option>
+                                                            <option value="Veg">Veg</option>
+                                                            <option value="Non-Veg">Non-Veg</option>
+                                                            <option value="Alcohol">Alcohol</option>
+                                                            <option value="Other">Other</option>
+                                                        </select>
                                                     </div>
-                                                    <span className="font-medium text-slate-700">₹{item.amount.toFixed(2)}</span>
+
+                                                    {/* Name Input */}
+                                                    <Input
+                                                        className="h-8 flex-1 text-sm bg-white"
+                                                        placeholder="Item Name"
+                                                        value={item.name}
+                                                        onChange={(e) => {
+                                                            const newItems = [...scannedItems]
+                                                            newItems[idx].name = e.target.value
+                                                            setScannedItems(newItems)
+                                                        }}
+                                                    />
+
+                                                    {/* Amount Input */}
+                                                    <Input
+                                                        className="h-8 w-24 text-sm bg-white text-right"
+                                                        type="number"
+                                                        placeholder="0.00"
+                                                        value={item.amount}
+                                                        onChange={(e) => {
+                                                            const newItems = [...scannedItems]
+                                                            newItems[idx].amount = e.target.value
+                                                            setScannedItems(newItems)
+                                                        }}
+                                                        onFocus={(e) => e.target.select()}
+                                                    />
+
+                                                    {/* Delete Button */}
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-muted-foreground hover:text-red-600"
+                                                        onClick={() => {
+                                                            const newItems = scannedItems.filter((_, i) => i !== idx)
+                                                            setScannedItems(newItems)
+                                                        }}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
                                                 </div>
                                             ))}
+                                        </div>
+                                        <div className="text-right text-xs text-muted-foreground">
+                                            Total Calculated: ₹{scannedItems.reduce((sum, item) => sum + (parseFloat(item.amount.toString()) || 0), 0).toFixed(2)}
                                         </div>
                                     </div>
                                 )}
@@ -1146,7 +1212,7 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                     <Input
                                         type="number"
                                         value={confirmationData.totalAmount || 0}
-                                        onChange={(e) => setConfirmationData({ ...confirmationData, totalAmount: parseFloat(e.target.value) })}
+                                        onChange={(e) => setConfirmationData({ ...confirmationData, totalAmount: e.target.value })}
                                     />
                                 </div>
                             </div>
@@ -1186,7 +1252,7 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                                 value={item.quantity}
                                                 onChange={(e) => {
                                                     const newItems = [...confirmationData.items];
-                                                    newItems[i] = { ...item, quantity: parseFloat(e.target.value) };
+                                                    newItems[i] = { ...item, quantity: e.target.value };
                                                     setConfirmationData({ ...confirmationData, items: newItems });
                                                 }}
                                                 placeholder="Qty"
@@ -1197,7 +1263,7 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                                 value={item.amount}
                                                 onChange={(e) => {
                                                     const newItems = [...confirmationData.items];
-                                                    newItems[i] = { ...item, amount: parseFloat(e.target.value) };
+                                                    newItems[i] = { ...item, amount: e.target.value };
                                                     setConfirmationData({ ...confirmationData, items: newItems });
                                                 }}
                                                 placeholder="Amount"
