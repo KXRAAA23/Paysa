@@ -50,6 +50,8 @@ export default function DashboardPage() {
         type: string
         description: string
         createdAt: string
+        amount?: number
+        groupName?: string
     }
 
     const [activities, setActivities] = useState<Activity[]>([])
@@ -107,20 +109,11 @@ export default function DashboardPage() {
                         let groupBalance = 0
 
                         group.expenses?.forEach((exp: any) => {
-                            // Defensive checks for missing data (deleted users etc)
+                            // Defensive checks
                             if (!exp.paidBy || !exp.splits) return
 
                             const payerId = (exp.paidBy._id || exp.paidBy).toString()
                             const isPayer = payerId === userId
-
-                            // Activity Feed
-                            allExpenses.push({
-                                _id: exp._id,
-                                type: 'EXPENSE',
-                                description: `${exp.paidBy.name || 'Someone'} added "${exp.title}" in ${group.name}`,
-                                createdAt: exp.createdAt,
-                                amount: exp.totalAmount
-                            })
 
                             if (isPayer) {
                                 // I Paid. Add up what OTHERS owe me (unsettled)
@@ -153,17 +146,34 @@ export default function DashboardPage() {
                         }
                     })
 
-                    // Sort activities
-                    allExpenses.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-
                     setGroups(processedGroups)
-                    setActivities(allExpenses.slice(0, 10)) // Top 10 recent
+
                     setStats({
                         totalBalance: parseFloat(calculatedTotalBalance.toFixed(2)),
                         activeGroups: groupsData.length,
                         pendingSettlements: calculatedPendingSettlements
                     })
                 }
+
+                // Fetch Recent Activity (Expenses) directly
+                const activityRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/expenses/user`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (activityRes.ok) {
+                    const expenses = await activityRes.json();
+
+                    const formattedActivities = expenses.slice(0, 10).map((exp: any) => ({
+                        _id: exp._id,
+                        type: 'EXPENSE',
+                        description: `${exp.paidBy?.name || 'Someone'} added "${exp.title}" in ${exp.groupName}`,
+                        createdAt: exp.createdAt,
+                        amount: exp.totalAmount
+                    }));
+                    setActivities(formattedActivities);
+                }
+
+
             } catch (error) {
                 console.error("Dashboard fetch error:", error)
             } finally {

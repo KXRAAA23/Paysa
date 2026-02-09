@@ -47,6 +47,23 @@ export const sendExpenseNotification = async (expense, group, paidByUser) => {
         // Find member email
         const member = group.members.find(m => m.user?.toString() === split.user.toString());
         if (member && member.email) {
+            // Check User Notification Preferences
+            try {
+                // We need to fetch the user to check their settings
+                // The group member object might not have the preferences populated if it's just from the group doc
+                // If member.user is an ID, fetch the user.
+                const user = await import('../models/User.js').then(mod => mod.default.findById(member.user));
+
+                if (user && user.notificationPreferences && user.notificationPreferences.expenses === false) {
+                    console.log(`Skipping expense email for ${member.email} (User disabled notifications)`);
+                    continue;
+                }
+            } catch (err) {
+                console.error("Error checking notification preferences:", err);
+                // Fallback: send email if check fails? Or skip? Let's skip to be safe/less annoying.
+                continue;
+            }
+
             const subject = `New Expense: ${title} in ${group.name}`;
             const text = `
 Hello,

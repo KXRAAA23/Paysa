@@ -259,4 +259,71 @@ const getUserBalance = async (req, res) => {
     });
 };
 
-export { createExpense, getGroupExpenses, getExpenseById, settleExpenseSplit, getUserBalance };
+// @desc    Get all expenses for the current user across all groups
+// @route   GET /api/expenses/user
+// @access  Private
+const getAllUserExpenses = async (req, res) => {
+    const userId = req.user._id;
+    const userIdObj = new mongoose.Types.ObjectId(userId);
+
+    try {
+        const expenses = await Group.aggregate([
+            // 1. Find groups where the user is a member
+            { $match: { 'members.user': userIdObj } },
+
+            // 2. Unwind expenses array
+            { $unwind: '$expenses' },
+
+            // 3. Filter expenses relevant to the user (Payer OR Split participant)
+            {
+                $match: {
+                    $or: [
+                        { 'expenses.paidBy': userIdObj },
+                        { 'expenses.splits.user': userIdObj }
+                    ]
+                }
+            },
+
+            // 4. Lookup (Join) to get Payer details
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'expenses.paidBy',
+                    foreignField: '_id',
+                    as: 'payerDetails'
+                }
+            },
+
+            // 5. Project (Shape) the output
+            {
+                $project: {
+                    _id: '$expenses._id',
+                    groupId: '$_id',
+                    groupName: '$name',
+                    title: '$expenses.title',
+                    totalAmount: '$expenses.totalAmount',
+                    category: '$expenses.category',
+                    paidBy: { $arrayElemAt: ['$payerDetails', 0] }, // flatten array
+                    createdAt: '$expenses.createdAt',
+                    splits: '$expenses.splits'
+                }
+            },
+
+            // 6. Sort by newest first
+            { $sort: { createdAt: -1 } }
+        ]);
+
+        // Clean up sensitive user data from payerDetails if needed (password etc already excluded by default projection usually, but good to be safe)
+        const sanitizedExpenses = expenses.map(e => ({
+            ...e,
+            paidBy: e.paidBy ? { _id: e.paidBy._id, name: e.paidBy.name, email: e.paidBy.email, avatar: e.paidBy.avatar } : null
+        }));
+
+        res.json(sanitizedExpenses);
+    } catch (error) {
+        console.error("Error fetching user expenses:", error);
+        res.status(500).json({ message: 'Server Error fetching expenses' });
+    }
+};
+
+export { createExpense, getGroupExpenses, getExpenseById, settleExpenseSplit, getUserBalance, getAllUserExpenses };

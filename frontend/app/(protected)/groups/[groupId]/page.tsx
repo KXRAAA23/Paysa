@@ -1014,90 +1014,122 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                     </div>
                                 </div>
 
-                                {/* Scanned Items Breakdown (Editable) */}
+                                {/* Scanned Items Breakdown (Polished UI) */}
                                 {scannedItems.length > 0 && (
-                                    <div className="space-y-3 animate-in slide-in-from-top-2">
+                                    <div className="space-y-4 animate-in slide-in-from-top-2">
                                         <div className="flex items-center justify-between">
-                                            <Label>Item Breakdown</Label>
-                                            <div className="flex gap-2">
+                                            <Label className="text-base font-semibold text-slate-800">Item Breakdown</Label>
+                                            <Button type="button" variant="ghost" size="sm" className="h-8 text-xs text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => setScannedItems([])}>Clear All</Button>
+                                        </div>
+
+                                        <div className="border rounded-xl overflow-hidden bg-white shadow-sm ring-1 ring-slate-200">
+                                            {/* Table Header */}
+                                            <div className="grid grid-cols-12 gap-2 bg-slate-50/80 p-3 border-b text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                                <div className="col-span-3">Type</div>
+                                                <div className="col-span-5">Item</div>
+                                                <div className="col-span-3 text-right">Amount</div>
+                                                <div className="col-span-1"></div>
+                                            </div>
+
+                                            {/* Items List */}
+                                            <div className="max-h-60 overflow-y-auto divide-y divide-slate-100">
+                                                {scannedItems.map((item, idx) => (
+                                                    <div key={idx} className="grid grid-cols-12 gap-2 p-2 items-center hover:bg-slate-50_30 transition-colors group">
+                                                        {/* Type Selector */}
+                                                        <div className="col-span-3">
+                                                            <div className="relative">
+                                                                <select
+                                                                    className={`block w-full appearance-none rounded-md border-0 py-1.5 pl-2 pr-4 text-xs font-medium ring-1 ring-inset focus:ring-2 focus:ring-inset sm:text-xs sm:leading-6 cursor-pointer outline-none transition-all
+                                                                        ${item.type === 'Veg' ? 'text-green-700 bg-green-50 ring-green-600/20 focus:ring-green-600/50' :
+                                                                            item.type === 'Non-Veg' ? 'text-red-700 bg-red-50 ring-red-600/20 focus:ring-red-600/50' :
+                                                                                item.type === 'Alcohol' ? 'text-purple-700 bg-purple-50 ring-purple-600/20 focus:ring-purple-600/50' :
+                                                                                    'text-slate-700 bg-slate-50 ring-slate-200 focus:ring-indigo-500/50'}`}
+                                                                    value={item.type}
+                                                                    onChange={(e) => {
+                                                                        const newItems = [...scannedItems]
+                                                                        newItems[idx].type = e.target.value
+                                                                        setScannedItems(newItems)
+                                                                    }}
+                                                                >
+                                                                    <option value="Food">Food</option>
+                                                                    <option value="Veg">Veg</option>
+                                                                    <option value="Non-Veg">Non-Veg</option>
+                                                                    <option value="Alcohol">Alcohol</option>
+                                                                    <option value="Other">Other</option>
+                                                                </select>
+                                                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1">
+                                                                    <ChevronDown className="h-3 w-3 text-current opacity-50" aria-hidden="true" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Name Input */}
+                                                        <div className="col-span-5">
+                                                            <Input
+                                                                className="h-8 border-0 bg-transparent p-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-slate-300 font-medium text-slate-700"
+                                                                placeholder="Item Name"
+                                                                value={item.name}
+                                                                onChange={(e) => {
+                                                                    const newItems = [...scannedItems]
+                                                                    newItems[idx].name = e.target.value
+                                                                    setScannedItems(newItems)
+                                                                }}
+                                                            />
+                                                        </div>
+
+                                                        {/* Amount Input */}
+                                                        <div className="col-span-3">
+                                                            <div className="relative">
+                                                                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-1 text-slate-400 text-xs">₹</span>
+                                                                <Input
+                                                                    className="h-8 w-full border-0 bg-transparent py-0 pl-4 pr-1 text-sm text-right focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-slate-300 font-semibold text-slate-900"
+                                                                    type="number"
+                                                                    placeholder="0.00"
+                                                                    value={item.amount}
+                                                                    onChange={(e) => {
+                                                                        const newItems = [...scannedItems]
+                                                                        newItems[idx].amount = e.target.value
+                                                                        setScannedItems(newItems)
+                                                                    }}
+                                                                    onFocus={(e) => e.target.select()}
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Delete Button */}
+                                                        <div className="col-span-1 flex justify-end">
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-7 w-7 text-slate-400 hover:text-red-600 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                onClick={() => {
+                                                                    const newItems = scannedItems.filter((_, i) => i !== idx)
+                                                                    setScannedItems(newItems)
+                                                                }}
+                                                            >
+                                                                <X className="h-3.5 w-3.5" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Footer Actions */}
+                                            <div className="bg-slate-50/50 p-2 border-t flex items-center justify-between">
                                                 <Button
                                                     type="button"
-                                                    variant="outline"
+                                                    variant="ghost"
                                                     size="sm"
-                                                    className="h-7 text-xs"
+                                                    className="h-8 text-xs text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
                                                     onClick={() => setScannedItems([...scannedItems, { name: "", amount: 0, type: "Food" }])}
                                                 >
-                                                    <Plus className="h-3 w-3 mr-1" /> Add Item
+                                                    <Plus className="h-3.5 w-3.5 mr-1.5" /> Add Item
                                                 </Button>
-                                                <Button type="button" variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={() => setScannedItems([])}>Clear All</Button>
-                                            </div>
-                                        </div>
-                                        <div className="border rounded-md divide-y max-h-60 overflow-y-auto bg-slate-50/50">
-                                            {scannedItems.map((item, idx) => (
-                                                <div key={idx} className="flex items-center gap-2 p-2">
-                                                    {/* Type Selector (Optional, kept simple for now) */}
-                                                    <div className="w-[80px]">
-                                                        <select
-                                                            className="h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
-                                                            value={item.type}
-                                                            onChange={(e) => {
-                                                                const newItems = [...scannedItems]
-                                                                newItems[idx].type = e.target.value
-                                                                setScannedItems(newItems)
-                                                            }}
-                                                        >
-                                                            <option value="Food">Food</option>
-                                                            <option value="Veg">Veg</option>
-                                                            <option value="Non-Veg">Non-Veg</option>
-                                                            <option value="Alcohol">Alcohol</option>
-                                                            <option value="Other">Other</option>
-                                                        </select>
-                                                    </div>
-
-                                                    {/* Name Input */}
-                                                    <Input
-                                                        className="h-8 flex-1 text-sm bg-white"
-                                                        placeholder="Item Name"
-                                                        value={item.name}
-                                                        onChange={(e) => {
-                                                            const newItems = [...scannedItems]
-                                                            newItems[idx].name = e.target.value
-                                                            setScannedItems(newItems)
-                                                        }}
-                                                    />
-
-                                                    {/* Amount Input */}
-                                                    <Input
-                                                        className="h-8 w-24 text-sm bg-white text-right"
-                                                        type="number"
-                                                        placeholder="0.00"
-                                                        value={item.amount}
-                                                        onChange={(e) => {
-                                                            const newItems = [...scannedItems]
-                                                            newItems[idx].amount = e.target.value
-                                                            setScannedItems(newItems)
-                                                        }}
-                                                        onFocus={(e) => e.target.select()}
-                                                    />
-
-                                                    {/* Delete Button */}
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8 text-muted-foreground hover:text-red-600"
-                                                        onClick={() => {
-                                                            const newItems = scannedItems.filter((_, i) => i !== idx)
-                                                            setScannedItems(newItems)
-                                                        }}
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
+                                                <div className="text-sm font-semibold text-slate-700 pr-2">
+                                                    Total: <span className="text-slate-900">₹{scannedItems.reduce((sum, item) => sum + (parseFloat(item.amount.toString()) || 0), 0).toFixed(2)}</span>
                                                 </div>
-                                            ))}
-                                        </div>
-                                        <div className="text-right text-xs text-muted-foreground">
-                                            Total Calculated: ₹{scannedItems.reduce((sum, item) => sum + (parseFloat(item.amount.toString()) || 0), 0).toFixed(2)}
+                                            </div>
                                         </div>
                                     </div>
                                 )}

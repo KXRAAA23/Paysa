@@ -55,6 +55,21 @@ export default function ProtectedLayout({
 
         try {
             const token = localStorage.getItem('token');
+
+            // 1. Check User Preferences first
+            const profileRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/profile`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (profileRes.ok) {
+                const profile = await profileRes.json();
+                // If user has turned OFF settlement notifications, do not show popup
+                if (profile.notificationPreferences && profile.notificationPreferences.settlements === false) {
+                    return;
+                }
+            }
+
+            // 2. Check Balance
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/expenses/balance`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -69,7 +84,7 @@ export default function ProtectedLayout({
                 }
             }
         } catch (error) {
-            console.error("Failed to fetch balance for reminder", error);
+            console.error("Failed to fetch balance or profile for reminder", error);
         }
     };
 
