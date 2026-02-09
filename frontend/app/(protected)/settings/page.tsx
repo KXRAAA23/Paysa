@@ -51,6 +51,26 @@ export default function SettingsPage() {
         if (storedTheme) {
             setTheme(storedTheme)
         }
+
+        // Fetch User Settings
+        const fetchSettings = async () => {
+            try {
+                const token = localStorage.getItem("token")
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.notificationPreferences) {
+                        setNotifications(data.notificationPreferences);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch settings", err);
+            }
+        };
+
+        fetchSettings();
     }, [])
 
     // Theme Handler
@@ -143,7 +163,24 @@ export default function SettingsPage() {
                                     type="checkbox"
                                     className="h-5 w-5 text-primary rounded focus:ring-primary"
                                     checked={notifications.expenses}
-                                    onChange={e => setNotifications({ ...notifications, expenses: e.target.checked })}
+                                    onChange={async (e) => {
+                                        const newVal = e.target.checked;
+                                        setNotifications(prev => ({ ...prev, expenses: newVal }));
+                                        // Save to backend
+                                        try {
+                                            const token = localStorage.getItem("token");
+                                            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/profile`, {
+                                                method: 'PUT',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'Authorization': `Bearer ${token}`
+                                                },
+                                                body: JSON.stringify({ notificationPreferences: { ...notifications, expenses: newVal } })
+                                            });
+                                        } catch (err) {
+                                            console.error("Failed to save settings", err);
+                                        }
+                                    }}
                                 />
                             </div>
                             <Separator />
@@ -156,7 +193,23 @@ export default function SettingsPage() {
                                     type="checkbox"
                                     className="h-5 w-5 text-primary rounded focus:ring-primary"
                                     checked={notifications.settlements}
-                                    onChange={e => setNotifications({ ...notifications, settlements: e.target.checked })}
+                                    onChange={async (e) => {
+                                        const newVal = e.target.checked;
+                                        setNotifications(prev => ({ ...prev, settlements: newVal }));
+                                        try {
+                                            const token = localStorage.getItem("token");
+                                            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/profile`, {
+                                                method: 'PUT',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'Authorization': `Bearer ${token}`
+                                                },
+                                                body: JSON.stringify({ notificationPreferences: { ...notifications, settlements: newVal } })
+                                            });
+                                        } catch (err) {
+                                            console.error("Failed to save settings", err);
+                                        }
+                                    }}
                                 />
                             </div>
                             <Separator />
@@ -169,13 +222,26 @@ export default function SettingsPage() {
                                     type="checkbox"
                                     className="h-5 w-5 text-primary rounded focus:ring-primary"
                                     checked={notifications.email}
-                                    onChange={e => setNotifications({ ...notifications, email: e.target.checked })}
+                                    onChange={async (e) => {
+                                        const newVal = e.target.checked;
+                                        setNotifications(prev => ({ ...prev, email: newVal }));
+                                        try {
+                                            const token = localStorage.getItem("token");
+                                            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/profile`, {
+                                                method: 'PUT',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'Authorization': `Bearer ${token}`
+                                                },
+                                                body: JSON.stringify({ notificationPreferences: { ...notifications, email: newVal } })
+                                            });
+                                        } catch (err) {
+                                            console.error("Failed to save settings", err);
+                                        }
+                                    }}
                                 />
                             </div>
                         </CardContent>
-                        <CardFooter>
-                            <Button variant="outline" className="ml-auto">Save Changes</Button>
-                        </CardFooter>
                     </Card>
                 </TabsContent>
 

@@ -35,6 +35,20 @@ const userSchema = mongoose.Schema(
         otpExpiry: {
             type: Date,
         },
+        notificationPreferences: {
+            expenses: {
+                type: Boolean,
+                default: true,
+            },
+            settlements: {
+                type: Boolean,
+                default: true,
+            },
+            email: {
+                type: Boolean,
+                default: false,
+            }
+        },
     },
     {
         timestamps: true,
@@ -42,9 +56,9 @@ const userSchema = mongoose.Schema(
 );
 
 userSchema.pre("save", async function () {
-  if (!this.isModified("password")) return
+    if (!this.isModified("password")) return
 
-  this.password = await bcrypt.hash(this.password, 10)
+    this.password = await bcrypt.hash(this.password, 10)
 })
 
 

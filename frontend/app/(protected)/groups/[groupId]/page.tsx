@@ -20,6 +20,8 @@ import {
     ChevronDown,
     ChevronUp,
     Wallet,
+    Sparkles,
+    Trash2,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -44,6 +46,16 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface Member {
     _id: string
@@ -104,6 +116,12 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
     const [billFile, setBillFile] = useState<File | null>(null)
     const [isCreatingExpense, setIsCreatingExpense] = useState(false)
 
+    // AI Analysis State
+    const [isAnalyzing, setIsAnalyzing] = useState(false)
+    const [scannedItems, setScannedItems] = useState<{ name: string, amount: number, type: string }[]>([])
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false)
+    const [confirmationData, setConfirmationData] = useState<any>(null)
+
     const [notification, setNotification] = useState<{ type: 'success' | 'error', text: string } | null>(null)
     const [currentUserId, setCurrentUserId] = useState<string>("")
 
@@ -150,6 +168,22 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
 
         fetchGroupDetails()
     }, [groupId, router])
+
+    useEffect(() => {
+        if (showexpenseModal) {
+            setNewExpenseTitle("")
+            setCategory("General")
+            setNewExpenseAmount("")
+            setNewExpensePaidBy("")
+            setSplitType("equal")
+            setCustomSplits({})
+            setBillFile(null)
+            setScannedItems([])
+            setIsAnalyzing(false)
+            setConfirmationData(null)
+            setShowConfirmationModal(false)
+        }
+    }, [showexpenseModal])
 
     const handleInvite = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -249,6 +283,53 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
         }
     }
 
+    const applyScanData = (data: any) => {
+        setNewExpenseTitle(data.title || data.merchant || data.category || "Scanned Receipt")
+        // Check for undefined or null, allow 0
+        if (data.totalAmount !== undefined && data.totalAmount !== null) {
+            setNewExpenseAmount(data.totalAmount.toString())
+        }
+        if (data.category) setCategory(data.category)
+        if (data.items && data.items.length > 0) setScannedItems(data.items)
+    }
+
+    const handleScanReceipt = async (file: File) => {
+        setIsAnalyzing(true)
+        setNotification({ type: 'success', text: "Analyzing receipt... please wait" })
+        setShowConfirmationModal(false)
+
+        const formData = new FormData()
+        formData.append('bill', file)
+
+        try {
+            const token = localStorage.getItem("token")
+            const response = await fetch("http://localhost:5000/api/expenses/analyze", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData
+            })
+
+            const data = await response.json() // Always parse first
+
+            if (response.ok) {
+                if (data.requiresConfirmation) {
+                    setConfirmationData(data)
+                    setShowConfirmationModal(true)
+                } else {
+                    applyScanData(data)
+                }
+                setNotification({ type: 'success', text: "Receipt scanned successfully!" })
+            } else {
+                setNotification({ type: 'error', text: data?.message || "Could not analyze receipt" })
+            }
+        } catch (error) {
+            console.error("Analysis error", error)
+            setNotification({ type: 'error', text: "Analysis failed. Please try again." })
+        } finally {
+            setIsAnalyzing(false)
+        }
+    }
+
     const handleCreateExpense = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!newExpenseTitle || !newExpenseAmount || !group) return
@@ -291,6 +372,9 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
             formData.append('category', category)
             formData.append('paidBy', payerId)
             formData.append('splits', JSON.stringify(splits))
+            if (scannedItems.length > 0) {
+                formData.append('items', JSON.stringify(scannedItems))
+            }
             if (billFile) {
                 formData.append('bill', billFile)
             }
@@ -337,6 +421,7 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                 setCustomSplits({})
                 setBillFile(null)
                 setNewExpensePaidBy("")
+                setScannedItems([])
             } else {
                 const errData = await response.json()
                 setNotification({ type: 'error', text: errData.message || "Failed to add expense" })
@@ -828,14 +913,39 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
             </Tabs>
 
             {/* Add Expense Modal */}
-            {/* Add Expense Modal */}
             {showexpenseModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in overflow-y-auto">
+                    {/* ... existing modal code ... */}
                     <Card className="w-full max-w-lg bg-white shadow-2xl my-8">
                         <CardHeader>
                             <CardTitle>Add New Expense</CardTitle>
                             <CardDescription>Enter details and split method</CardDescription>
                         </CardHeader>
+                        <div className="px-6 pb-2">
+                            {/* ... scan area ... */}
+                            <div className="flex items-center gap-2 p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+                                <Sparkles className="h-5 w-5 text-indigo-600" />
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-indigo-900">Have a receipt?</p>
+                                    <p className="text-xs text-indigo-700">Scan it to auto-fill details.</p>
+                                </div>
+                                <div className="relative">
+                                    <Button type="button" size="sm" variant="secondary" className="bg-indigo-100 text-indigo-700 hover:bg-indigo-200" disabled={isAnalyzing}>
+                                        {isAnalyzing ? "Scanning..." : "Scan Receipt"}
+                                    </Button>
+                                    <Input
+                                        type="file"
+                                        accept="image/*"
+                                        className="absolute inset-0 opacity-0 cursor-pointer"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0]
+                                            if (file) handleScanReceipt(file)
+                                        }}
+                                        disabled={isAnalyzing}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                         <form onSubmit={handleCreateExpense}>
                             <CardContent className="space-y-4 max-h-[70vh] overflow-y-auto">
                                 {/* Category & Title Row */}
@@ -898,6 +1008,33 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                         </select>
                                     </div>
                                 </div>
+
+                                {/* Scanned Items Breakdown */}
+                                {scannedItems.length > 0 && (
+                                    <div className="space-y-2 animate-in slide-in-from-top-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label>Item Breakdown</Label>
+                                            <Button type="button" variant="ghost" size="sm" className="h-6 text-xs text-muted-foreground" onClick={() => setScannedItems([])}>Clear</Button>
+                                        </div>
+                                        <div className="border rounded-md divide-y max-h-40 overflow-y-auto">
+                                            {scannedItems.map((item, idx) => (
+                                                <div key={idx} className="flex items-center justify-between p-2 text-sm">
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant="outline" className={`${item.type === 'Veg' ? 'border-green-500 text-green-700 bg-green-50' :
+                                                            item.type === 'Non-Veg' ? 'border-red-500 text-red-700 bg-red-50' :
+                                                                item.type === 'Alcohol' ? 'border-purple-500 text-purple-700 bg-purple-50' :
+                                                                    'border-slate-200 text-slate-600'
+                                                            }`}>
+                                                            {item.type}
+                                                        </Badge>
+                                                        <span className="truncate max-w-[150px]">{item.name}</span>
+                                                    </div>
+                                                    <span className="font-medium text-slate-700">₹{item.amount.toFixed(2)}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Split Type */}
                                 <div className="space-y-3">
@@ -983,6 +1120,115 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                     </Card>
                 </div>
             )}
+
+            {/* Confirmation Modal */}
+            <AlertDialog open={showConfirmationModal} onOpenChange={setShowConfirmationModal}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Confirm Scanned Receipt Details</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            We analyzed your receipt with {(confirmationData?.confidence * 100)?.toFixed(0) || 0}% confidence. Please check the details.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    {confirmationData && (
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <Label className="text-xs">Category</Label>
+                                    <Input
+                                        value={confirmationData.category || ""}
+                                        onChange={(e) => setConfirmationData({ ...confirmationData, category: e.target.value })}
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label className="text-xs">Total Amount</Label>
+                                    <Input
+                                        type="number"
+                                        value={confirmationData.totalAmount || 0}
+                                        onChange={(e) => setConfirmationData({ ...confirmationData, totalAmount: parseFloat(e.target.value) })}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-xs">Items ({confirmationData.items?.length || 0})</Label>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 w-6 p-0"
+                                        onClick={() => {
+                                            const newItems = [...(confirmationData.items || []), { name: "New Item", amount: 0, quantity: 1, type: "Food" }];
+                                            setConfirmationData({ ...confirmationData, items: newItems });
+                                        }}
+                                    >
+                                        <Plus className="h-4 w-4" />
+                                    </Button>
+                                </div>
+
+                                <div className="border rounded bg-muted/30 p-2 max-h-60 overflow-y-auto space-y-2">
+                                    {(confirmationData.items || []).map((item: any, i: number) => (
+                                        <div key={i} className="flex gap-2 items-center">
+                                            <Input
+                                                className="h-8 text-sm"
+                                                value={item.name}
+                                                onChange={(e) => {
+                                                    const newItems = [...confirmationData.items];
+                                                    newItems[i] = { ...item, name: e.target.value };
+                                                    setConfirmationData({ ...confirmationData, items: newItems });
+                                                }}
+                                                placeholder="Item Name"
+                                            />
+                                            <Input
+                                                className="h-8 w-16 text-sm"
+                                                type="number"
+                                                value={item.quantity}
+                                                onChange={(e) => {
+                                                    const newItems = [...confirmationData.items];
+                                                    newItems[i] = { ...item, quantity: parseFloat(e.target.value) };
+                                                    setConfirmationData({ ...confirmationData, items: newItems });
+                                                }}
+                                                placeholder="Qty"
+                                            />
+                                            <Input
+                                                className="h-8 w-24 text-sm"
+                                                type="number"
+                                                value={item.amount}
+                                                onChange={(e) => {
+                                                    const newItems = [...confirmationData.items];
+                                                    newItems[i] = { ...item, amount: parseFloat(e.target.value) };
+                                                    setConfirmationData({ ...confirmationData, items: newItems });
+                                                }}
+                                                placeholder="Amount"
+                                            />
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-8 w-8 p-0 text-destructive"
+                                                onClick={() => {
+                                                    const newItems = confirmationData.items.filter((_: any, idx: number) => idx !== i);
+                                                    setConfirmationData({ ...confirmationData, items: newItems });
+                                                }}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    ))}
+                                    {(!confirmationData.items || confirmationData.items.length === 0) && (
+                                        <p className="text-xs text-muted-foreground text-center py-2">No items found. Add one manually.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setShowConfirmationModal(false)}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => { applyScanData(confirmationData); setShowConfirmationModal(false); }}>Confirm & Use</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

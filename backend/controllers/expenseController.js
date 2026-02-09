@@ -9,7 +9,7 @@ import mongoose from 'mongoose';
 // @route   POST /api/expenses
 // @access  Private
 const createExpense = async (req, res) => {
-    let { groupId, title, totalAmount, paidBy, splits, category } = req.body;
+    let { groupId, title, totalAmount, paidBy, splits, category, items } = req.body;
 
     // Default category if missing
     if (!category) category = "General";
@@ -21,6 +21,14 @@ const createExpense = async (req, res) => {
         } catch (error) {
             res.status(400).json({ message: 'Invalid splits format' });
             return;
+        }
+    }
+
+    if (items && typeof items === 'string') {
+        try {
+            items = JSON.parse(items);
+        } catch (error) {
+            items = [];
         }
     }
 
@@ -79,6 +87,7 @@ const createExpense = async (req, res) => {
         category,
         paidBy: paidBy || req.user._id,
         splits,
+        items: items || [],
         billUrl,
         createdAt: new Date()
     };

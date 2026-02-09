@@ -1,0 +1,68 @@
+[
+  {
+    "text": "Starbucks Coffee Latte Muffin Total 15.50",
+    "category": "Food",
+    "items": [
+      { "name": "Latte", "type": "Drinks" },
+      { "name": "Muffin", "type": "Veg" }
+    ]
+  },
+  {
+    "text": "UBER TRIP FARE 25.00 THANKS FOR RIDING",
+    "category": "Travel",
+    "items": []
+  },
+  {
+    "text": "Netflix Subscription Monthly Charge 15.99",
+    "category": "Entertainment",
+    "items": []
+  },
+  {
+    "text": "Trader Joe's Groceries Apples Bananas Milk Bread Total 45.20",
+    "category": "Food",
+    "items": [
+      { "name": "Apples", "type": "Veg" },
+      { "name": "Bananas", "type": "Veg" },
+      { "name": "Milk", "type": "Veg" },
+      { "name": "Bread", "type": "Veg" }
+    ]
+  },
+  {
+    "text": "Shell Gas Station Fuel Pump 5 50.00",
+    "category": "Travel",
+    "items": []
+  },
+  {
+    "text": "Cinema Ticket Movie Night Popcorn Soda",
+    "category": "Entertainment",
+    "items": [
+        { "name": "Popcorn", "type": "Veg" },
+        { "name": "Soda", "type": "Drinks" }
+    ]
+  },
+  {
+    "text": "CVS Pharmacy Medicine Vitamins Bandages",
+    "category": "Health",
+    "items": []
+  },
+  {
+    "text": "Apartment Rent Monthly Payment",
+    "category": "Rent",
+    "items": []
+  },
+  {
+    "text": "Electric Bill Utility Company",
+    "category": "Utilities",
+    "items": []
+  },
+  {
+    "text": "Chicken Wings Beer Burger Fries",
+    "category": "Food",
+    "items": [
+        { "name": "Chicken Wings", "type": "Non-Veg" },
+        { "name": "Beer", "type": "Alcohol" },
+        { "name": "Burger", "type": "Non-Veg" },
+        { "name": "Fries", "type": "Veg" }
+    ]
+  }
+]

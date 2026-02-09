@@ -154,6 +154,7 @@ const getUserProfile = async (req, res) => {
             occupation: user.occupation,
             bio: user.bio,
             isVerified: user.isVerified,
+            notificationPreferences: user.notificationPreferences || { expenses: true, settlements: true, email: false }
         });
     } else {
         res.status(404).json({ message: 'User not found' });
@@ -172,6 +173,13 @@ const updateUserProfile = async (req, res) => {
         user.occupation = req.body.occupation || user.occupation;
         user.bio = req.body.bio || user.bio;
 
+        if (req.body.notificationPreferences) {
+            user.notificationPreferences = {
+                ...user.notificationPreferences,
+                ...req.body.notificationPreferences
+            }
+        }
+
         const updatedUser = await user.save();
 
         res.json({
@@ -182,6 +190,7 @@ const updateUserProfile = async (req, res) => {
             occupation: updatedUser.occupation,
             bio: updatedUser.bio,
             isVerified: updatedUser.isVerified,
+            notificationPreferences: updatedUser.notificationPreferences,
             token: generateToken(updatedUser._id),
         });
     } else {

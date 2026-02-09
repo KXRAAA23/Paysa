@@ -22,25 +22,45 @@ const getFinancialTips = async (req, res) => {
 
         let pendingOldSplits = 0;
         let totalPendingAmount = 0;
+        let totalTransactionCount = 0;
+        let totalSpendAmount = 0;
+        let recentTransactionCount = 0; // Last 30 days
         const now = new Date();
-        const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7));
+        const sevenDaysAgo = new Date(now);
+        sevenDaysAgo.setDate(now.getDate() - 7);
+        const thirtyDaysAgo = new Date(now);
+        thirtyDaysAgo.setDate(now.getDate() - 30);
 
         // 2. Category Analysis
         const categorySpend = {};
+        const allTransactions = [];
 
         groups.forEach(group => {
+            if (!group.expenses) return;
+
             group.expenses.forEach(expense => {
-                const mySplit = expense.splits.find(s => s.user._id.toString() === userIdStr || s.user.toString() === userIdStr);
+                const mySplit = expense.splits.find(s => s.user && (s.user._id.toString() === userIdStr || s.user.toString() === userIdStr));
 
                 if (mySplit) {
+                    const amount = mySplit.amount;
+                    totalTransactionCount++;
+                    totalSpendAmount += amount;
+                    allTransactions.push(amount);
+
                     // Category aggregation
-                    if (!categorySpend[expense.category]) categorySpend[expense.category] = 0;
-                    categorySpend[expense.category] += mySplit.amount;
+                    const cat = expense.category || "General";
+                    if (!categorySpend[cat]) categorySpend[cat] = 0;
+                    categorySpend[cat] += amount;
+
+                    // Recent Activity Check
+                    if (new Date(expense.createdAt) > thirtyDaysAgo) {
+                        recentTransactionCount++;
+                    }
 
                     // Pending Settlements Check
                     // If I didn't pay (someone else paid), and I haven't settled
-                    if (expense.paidBy.toString() !== userIdStr && !mySplit.settled) {
-                        totalPendingAmount += mySplit.amount;
+                    if (expense.paidBy && expense.paidBy.toString() !== userIdStr && !mySplit.settled) {
+                        totalPendingAmount += amount;
                         if (new Date(expense.createdAt) < sevenDaysAgo) {
                             pendingOldSplits++;
                         }
@@ -74,7 +94,32 @@ const getFinancialTips = async (req, res) => {
             });
         }
 
-        // Tip 3: Positive Reinforcement (if no pending dues)
+        // Tip 3: Frequent Spender Alert
+        if (recentTransactionCount > 15) {
+            tips.push({
+                id: 'high-frequency',
+                type: 'insight',
+                title: 'High Activity Month',
+                description: `You've been involved in ${recentTransactionCount} transactions in the last 30 days. Keep an eye on the small expenses!`,
+            });
+        }
+
+        // Tip 4: High Value Transaction Alert
+        if (totalTransactionCount > 0) {
+            const avgTransaction = totalSpendAmount / totalTransactionCount;
+            // Check if there's any significantly large transaction (e.g., > 3x average)
+            const highValueTx = allTransactions.find(amount => amount > avgTransaction * 3);
+            if (highValueTx) {
+                tips.push({
+                    id: 'high-value',
+                    type: 'warning',
+                    title: 'Big Ticket Expense',
+                    description: `We noticed a large share of ₹${highValueTx.toFixed(0)}. Make sure this was intended and not a typo!`,
+                });
+            }
+        }
+
+        // Tip 5: Positive Reinforcement (if no pending dues)
         if (totalPendingAmount === 0 && groups.length > 0) {
             tips.push({
                 id: 'all-settled',
@@ -84,7 +129,7 @@ const getFinancialTips = async (req, res) => {
             });
         }
 
-        // Tip 4: Smart Saving (Generic logic for now)
+        // Tip 6: Smart Saving (Generic logic for now)
         if (groups.length > 2) {
             tips.push({
                 id: 'group-optimize',
