@@ -3,8 +3,14 @@
     "text": "Starbucks Coffee Latte Muffin Total 15.50",
     "category": "Food",
     "items": [
-      { "name": "Latte", "type": "Drinks" },
-      { "name": "Muffin", "type": "Veg" }
+      {
+        "name": "Latte",
+        "type": "Drinks"
+      },
+      {
+        "name": "Muffin",
+        "type": "Veg"
+      }
     ]
   },
   {
@@ -21,10 +27,22 @@
     "text": "Trader Joe's Groceries Apples Bananas Milk Bread Total 45.20",
     "category": "Food",
     "items": [
-      { "name": "Apples", "type": "Veg" },
-      { "name": "Bananas", "type": "Veg" },
-      { "name": "Milk", "type": "Veg" },
-      { "name": "Bread", "type": "Veg" }
+      {
+        "name": "Apples",
+        "type": "Veg"
+      },
+      {
+        "name": "Bananas",
+        "type": "Veg"
+      },
+      {
+        "name": "Milk",
+        "type": "Veg"
+      },
+      {
+        "name": "Bread",
+        "type": "Veg"
+      }
     ]
   },
   {
@@ -36,8 +54,14 @@
     "text": "Cinema Ticket Movie Night Popcorn Soda",
     "category": "Entertainment",
     "items": [
-        { "name": "Popcorn", "type": "Veg" },
-        { "name": "Soda", "type": "Drinks" }
+      {
+        "name": "Popcorn",
+        "type": "Veg"
+      },
+      {
+        "name": "Soda",
+        "type": "Drinks"
+      }
     ]
   },
   {
@@ -59,10 +83,152 @@
     "text": "Chicken Wings Beer Burger Fries",
     "category": "Food",
     "items": [
-        { "name": "Chicken Wings", "type": "Non-Veg" },
-        { "name": "Beer", "type": "Alcohol" },
-        { "name": "Burger", "type": "Non-Veg" },
-        { "name": "Fries", "type": "Veg" }
+      {
+        "name": "Chicken Wings",
+        "type": "Non-Veg"
+      },
+      {
+        "name": "Beer",
+        "type": "Alcohol"
+      },
+      {
+        "name": "Burger",
+        "type": "Non-Veg"
+      },
+      {
+        "name": "Fries",
+        "type": "Veg"
+      }
+    ]
+  },
+  {
+    "text": "Cashier sRAH C0vers: 0\nDash Qty f1ent\nae enn a nen nn en en ren nnn nnn ee\nLah0r: Murgh Tand00r: F 1% \u00a380.00\nTsf P1atter Paneer Aati 2 3 300.00\nPapad 53 75.00\n- Ass0rted Veg P1atter 2% 300.00.\nIsf P1atter Radha: Pane 2 8 300.00\nCh0ice 0F Juice at 140.00\nferated Water 2% 60.00\nB0tt1ed Water 33 36.00\nPremius Whisky 44a 100.00\nBeer K0tt1e s4 300.00\n2011.00\nC0rvice Charce 210.00 : + 204.10",
+    "category": "Food",
+    "items": [
+      {
+        "name": "Cashier Srah C0Vers:",
+        "type": "Food"
+      },
+      {
+        "name": "Tsf P1Atter Paneer Aati 2 3",
+        "type": "Food"
+      },
+      {
+        "name": "Papad 53",
+        "type": "Food"
+      },
+      {
+        "name": "Isf P1Atter Radha: Pane 2 8",
+        "type": "Food"
+      },
+      {
+        "name": "Ch0Ice 0F Juice At",
+        "type": "Food"
+      },
+      {
+        "name": "Ferated Water 2%",
+        "type": "Drinks"
+      },
+      {
+        "name": "B0Tt1Ed Water 33",
+        "type": "Drinks"
+      },
+      {
+        "name": "Premius Whisky 44A",
+        "type": "Alcohol"
+      },
+      {
+        "name": "Beer K0Tt1E S4",
+        "type": "Alcohol"
+      },
+      {
+        "name": "C0Rvice Charce 210.00 : +",
+        "type": "Food"
+      }
+    ]
+  },
+  {
+    "text": "SHIVGANGA\nv0 Restaurant\nWd, Member Meshin Higheey\n0pp. Bh0tr Pada Bur St0p, Meer Padge\nBriwendi, Thane\nGate. 14sis25 Bi11: 53\nTab1e h0 6 w M0. 18\nParti0u1ers Qty Rate d0nt\nMISA, PAY a \u201c6 170.06\nATATA wADA 3 \u201d 70.00\nwEDU mA a 0w 1.00\nSud f0ta1 120.00\n(GST gw\u00ae 20.0\nMST 0wn 0.00\nF00d T0ta1 177.00\nT0ta1 : 378\n12:06 amy\ntwee TRAN V0U Visit aga1e\nGST- 2 PAARL UGB T0LLE",
+    "category": "Food",
+    "items": [
+      {
+        "name": "Gate. 14Sis25 Bi11:",
+        "type": "Food"
+      },
+      {
+        "name": "Tab1E H0 6 W M0.",
+        "type": "Food"
+      },
+      {
+        "name": "Misa, Pay A \u201c6",
+        "type": "Food"
+      },
+      {
+        "name": "Atata Wada 3 \u201d",
+        "type": "Food"
+      },
+      {
+        "name": "Wedu Ma A 0W",
+        "type": "Food"
+      },
+      {
+        "name": "Sud F0Ta1",
+        "type": "Food"
+      },
+      {
+        "name": "Mst 0Wn",
+        "type": "Food"
+      },
+      {
+        "name": "F00D T0Ta1",
+        "type": "Food"
+      },
+      {
+        "name": "T0Ta1 :",
+        "type": "Food"
+      }
+    ]
+  },
+  {
+    "text": "SHIVGANGA\nVeg Restaurant\nNH 3, Mumbai Nashik Highway\n0pp.Bh0ir Pada Bus St0p, Near Padga\nBhiwandi, Thane\n\u2014--\u2014--\u2014=- TAX INV0ICE \u2014-\u2014\u2014\u2014-\nDate: 14/11/25       BELL N0: 53\nTable N0: 6          W. N0w: 18\nParticulars Qty Rate An0unt\nMISAL PAV      2      as      170.00\nBATATA WADA 1      70      70.00\nEDU WADA      1      80       80.00\nSub T0tat      320.00\nC0st ee 28.80\nSGST @% 28.80\nF00d T0tal      377.60\nT0tal :    378\n(2:06 PH)\nE.60.E. THANK Y0U Visit Again\nGST-27AABCU96030126",
+    "category": "Food",
+    "items": [
+      {
+        "name": "Date: 14/11/25       Bell N0:",
+        "type": "Food"
+      },
+      {
+        "name": "Table N0: 6          W. N0W:",
+        "type": "Food"
+      },
+      {
+        "name": "Misal Pav      2      As",
+        "type": "Food"
+      },
+      {
+        "name": "Batata Wada 1      70",
+        "type": "Food"
+      },
+      {
+        "name": "Edu Wada      1      80",
+        "type": "Food"
+      },
+      {
+        "name": "Sub T0Tat",
+        "type": "Food"
+      },
+      {
+        "name": "C0St Ee",
+        "type": "Food"
+      },
+      {
+        "name": "F00D T0Tal",
+        "type": "Food"
+      },
+      {
+        "name": "T0Tal :",
+        "type": "Food"
+      }
     ]
   }
 ]

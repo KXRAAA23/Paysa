@@ -5,58 +5,43 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 
-DATA_PATH = os.path.join(os.path.dirname(__file__), 'data', 'dataset.json')
-MODEL_DIR = os.path.join(os.path.dirname(__file__), 'models')
+BASE_DIR = os.path.dirname(__file__)
+DATA_PATH = os.path.join(BASE_DIR, 'data', 'dataset.json')
+MODEL_DIR = os.path.join(BASE_DIR, 'models')
+
+MIN_ITEMS = 40
 
 def train():
-    if not os.path.exists(MODEL_DIR):
-        os.makedirs(MODEL_DIR)
-
     if not os.path.exists(DATA_PATH):
-        print(f"Dataset not found at {DATA_PATH}")
+        print("No dataset found.")
         return
 
     with open(DATA_PATH, 'r') as f:
         data = json.load(f)
 
-    # 1. Train Category Classifier
-    texts = [d['text'] for d in data]
-    categories = [d['category'] for d in data]
+    os.makedirs(MODEL_DIR, exist_ok=True)
 
-    if texts:
-        cat_pipeline = make_pipeline(
-            TfidfVectorizer(stop_words='english'),
-            LogisticRegression()
-        )
-        cat_pipeline.fit(texts, categories)
-
-        with open(os.path.join(MODEL_DIR, 'category_model.pkl'), 'wb') as f:
-            pickle.dump(cat_pipeline, f)
-        print("Category model trained.")
-    else:
-        print("No training data found.")
-
-    # 2. Train Item Type Classifier
-    item_texts = []
-    item_types = []
-
+    item_texts, item_types = [], []
     for d in data:
-        if d.get('items'):
-            for item in d['items']:
-                item_texts.append(item['name'])
-                item_types.append(item['type'])
+        for item in d.get("items", []):
+            item_texts.append(item["name"])
+            item_types.append(item["type"])
 
-    if item_texts:
-        type_pipeline = make_pipeline(
-            TfidfVectorizer(analyzer='char_wb', ngram_range=(2, 5)), # Use char n-grams for short item names
-            LogisticRegression()
-        )
-        type_pipeline.fit(item_texts, item_types)
+    if len(item_texts) < MIN_ITEMS:
+        print(f"Not enough data ({len(item_texts)}). Need {MIN_ITEMS}.")
+        return
 
-        with open(os.path.join(MODEL_DIR, 'item_model.pkl'), 'wb') as f:
-            pickle.dump(type_pipeline, f)
-        
-        print(f"Item type model trained on {len(item_texts)} items.")
+    item_model = make_pipeline(
+        TfidfVectorizer(analyzer='char_wb', ngram_range=(2, 5)),
+        LogisticRegression(max_iter=1000, class_weight='balanced')
+    )
+
+    item_model.fit(item_texts, item_types)
+
+    with open(os.path.join(MODEL_DIR, "item_model.pkl"), "wb") as f:
+        pickle.dump(item_model, f)
+
+    print("Item model trained successfully.")
 
 if __name__ == "__main__":
     train()
