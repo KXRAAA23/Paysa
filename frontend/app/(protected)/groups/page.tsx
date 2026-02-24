@@ -224,11 +224,16 @@ export default function GroupsPage() {
                             </CardHeader>
 
                             <CardContent>
-                                <div className="p-3 bg-muted/40 rounded-lg flex items-center justify-between">
+                                <div className="p-3 bg-muted/50 rounded-xl flex items-center justify-between">
                                     <span className="text-sm font-medium text-muted-foreground">Your Balance</span>
                                     <div className="flex items-center gap-2">
-                                        <span className={`font-bold ${group.balance && group.balance < 0 ? "text-red-600" : group.balance && group.balance > 0 ? "text-green-600" : "text-muted-foreground"}`}>
-                                            {(!group.balance || group.balance === 0) ? "Settled" :
+                                        <span className={`font-bold text-sm ${group.balance && group.balance < 0
+                                                ? 'text-red-500 dark:text-red-400'
+                                                : group.balance && group.balance > 0
+                                                    ? 'text-green-500 dark:text-green-400'
+                                                    : 'text-muted-foreground'
+                                            }`}>
+                                            {(!group.balance || group.balance === 0) ? 'Settled' :
                                                 group.balance < 0 ? `-₹${Math.abs(group.balance)}` : `+₹${group.balance}`}
                                         </span>
                                     </div>
@@ -297,7 +302,7 @@ export default function GroupsPage() {
                                     />
                                 </div>
                                 {error && (
-                                    <div className="p-3 bg-red-50 text-red-600 text-sm rounded-md flex items-center gap-2">
+                                    <div className="p-3 bg-red-500/15 border border-red-500/30 text-red-500 dark:text-red-400 text-sm rounded-lg flex items-center gap-2">
                                         <span className="font-bold">Error:</span> {error}
                                     </div>
                                 )}

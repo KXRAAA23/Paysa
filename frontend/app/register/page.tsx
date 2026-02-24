@@ -20,7 +20,7 @@ import {
     InputOTPSlot,
 } from "@/components/ui/input-otp"
 import { Separator } from "@/components/ui/separator"
-import { Loader2 } from "lucide-react"
+import { Loader2, Zap } from "lucide-react"
 
 export default function RegisterPage() {
     const router = useRouter()
@@ -102,42 +102,53 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-50/50 dark:bg-zinc-950 px-4 py-8">
-            <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-500">
-                <div className="mb-6 flex justify-center">
-                    <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary">
-                        Paysa
+        <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden">
+
+            {/* Aurora Background */}
+            <div className="absolute inset-0 z-0">
+                <div className="absolute top-[-20%] left-[-20%] w-[800px] h-[800px] bg-purple-600/30 rounded-full blur-[140px] animate-blob mix-blend-screen opacity-50"></div>
+                <div className="absolute bottom-[-20%] right-[-20%] w-[800px] h-[800px] bg-blue-600/30 rounded-full blur-[140px] animate-blob animation-delay-2000 mix-blend-screen opacity-50"></div>
+            </div>
+
+            <div className="w-full max-w-md z-10 px-4">
+                <div className="mb-8 flex justify-center">
+                    <Link href="/" className="flex items-center gap-3 group">
+                        <div className="bg-white/10 p-2 rounded-xl backdrop-blur-md border border-white/10 group-hover:bg-white/20 transition-colors">
+                            <Zap className="h-6 w-6 text-white" fill="currentColor" />
+                        </div>
+                        <span className="font-bold text-3xl tracking-tight text-white">Paysa</span>
                     </Link>
                 </div>
 
-                <Card className="border-none shadow-xl shadow-zinc-200/50 dark:shadow-none bg-white dark:bg-zinc-900 ring-1 ring-zinc-200 dark:ring-zinc-800">
-                    <CardHeader className="space-y-1 text-center pb-8">
-                        <CardTitle className="text-2xl font-bold tracking-tight">
+                <Card className="border-white/10 bg-black/40 backdrop-blur-2xl shadow-2xl ring-1 ring-white/10">
+                    <CardHeader className="space-y-1 text-center pb-6 pt-8">
+                        <CardTitle className="text-3xl font-bold tracking-tight text-white">
                             {step === "register" ? "Create an account" : "Verify your email"}
                         </CardTitle>
-                        <CardDescription className="text-muted-foreground">
+                        <CardDescription className="text-zinc-400">
                             {step === "register"
                                 ? "Enter your details to get started with Paysa"
                                 : "An OTP has been sent to your email"}
                         </CardDescription>
                     </CardHeader>
-                    <CardContent>
+
+                    <CardContent className="space-y-6">
                         {step === "register" ? (
                             <>
                                 <form onSubmit={handleRegister} className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="name">Full Name</Label>
+                                        <Label htmlFor="name" className="text-zinc-300">Full Name</Label>
                                         <Input
                                             id="name"
                                             placeholder="John Doe"
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
                                             required
-                                            className="h-11 bg-zinc-50 dark:bg-zinc-950/50 border-zinc-200 dark:border-zinc-800 focus:ring-primary focus:border-primary transition-all"
+                                            className="h-11 bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="email">Email</Label>
+                                        <Label htmlFor="email" className="text-zinc-300">Email</Label>
                                         <Input
                                             id="email"
                                             type="email"
@@ -145,45 +156,45 @@ export default function RegisterPage() {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             required
-                                            className="h-11 bg-zinc-50 dark:bg-zinc-950/50 border-zinc-200 dark:border-zinc-800 focus:ring-primary focus:border-primary transition-all"
+                                            className="h-11 bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="password">Password</Label>
+                                        <Label htmlFor="password" className="text-zinc-300">Password</Label>
                                         <Input
                                             id="password"
                                             type="password"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             required
-                                            className="h-11 bg-zinc-50 dark:bg-zinc-950/50 border-zinc-200 dark:border-zinc-800 focus:ring-primary focus:border-primary transition-all"
+                                            className="h-11 bg-white/5 border-white/10 text-white focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="confirm-password">Confirm Password</Label>
+                                        <Label htmlFor="confirm-password" className="text-zinc-300">Confirm Password</Label>
                                         <Input
                                             id="confirm-password"
                                             type="password"
                                             value={confirmPassword}
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             required
-                                            className="h-11 bg-zinc-50 dark:bg-zinc-950/50 border-zinc-200 dark:border-zinc-800 focus:ring-primary focus:border-primary transition-all"
+                                            className="h-11 bg-white/5 border-white/10 text-white focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
                                         />
                                     </div>
 
-                                    {error && <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm text-center font-medium">{error}</div>}
+                                    {error && <div className="p-3 rounded-md bg-red-500/10 border border-red-500/20 text-red-200 text-sm text-center font-medium">{error}</div>}
 
-                                    <Button type="submit" className="w-full h-11 text-base shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all" size="lg" disabled={isLoading}>
+                                    <Button type="submit" className="w-full h-11 text-base bg-white text-black hover:bg-zinc-200 transition-colors font-semibold" disabled={isLoading}>
                                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Register"}
                                     </Button>
                                 </form>
 
-                                <div className="mt-8 relative mb-6">
+                                <div className="relative my-6">
                                     <div className="absolute inset-0 flex items-center">
-                                        <Separator />
+                                        <Separator className="bg-white/10" />
                                     </div>
                                     <div className="relative flex justify-center text-xs uppercase">
-                                        <span className="bg-white dark:bg-zinc-900 px-2 text-muted-foreground">
+                                        <span className="bg-black/40 px-2 text-zinc-500 backdrop-blur-md">
                                             or continue with
                                         </span>
                                     </div>
@@ -191,7 +202,7 @@ export default function RegisterPage() {
 
                                 <Button
                                     variant="outline"
-                                    className="w-full h-11 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                                    className="w-full h-11 bg-white/5 border-white/10 text-white hover:bg-white/10 hover:text-white transition-colors"
                                     type="button"
                                     onClick={handleGoogleLogin}
                                 >
@@ -225,26 +236,24 @@ export default function RegisterPage() {
                                         onChange={(value) => setOtp(value)}
                                     >
                                         <InputOTPGroup className="gap-2">
-                                            <InputOTPSlot index={0} className="rounded-md border-zinc-200 dark:border-zinc-800" />
-                                            <InputOTPSlot index={1} className="rounded-md border-zinc-200 dark:border-zinc-800" />
-                                            <InputOTPSlot index={2} className="rounded-md border-zinc-200 dark:border-zinc-800" />
-                                            <InputOTPSlot index={3} className="rounded-md border-zinc-200 dark:border-zinc-800" />
-                                            <InputOTPSlot index={4} className="rounded-md border-zinc-200 dark:border-zinc-800" />
-                                            <InputOTPSlot index={5} className="rounded-md border-zinc-200 dark:border-zinc-800" />
+                                            {/* Custom styled OTP slots to match dark theme */}
+                                            {[...Array(6)].map((_, i) => (
+                                                <InputOTPSlot key={i} index={i} className="rounded-md border-white/20 bg-white/5 text-white h-12 w-10 md:w-12 text-lg" />
+                                            ))}
                                         </InputOTPGroup>
                                     </InputOTP>
                                 </div>
 
-                                {error && <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm text-center font-medium">{error}</div>}
+                                {error && <div className="p-3 rounded-md bg-red-500/10 border border-red-500/20 text-red-200 text-sm text-center font-medium">{error}</div>}
 
-                                <Button type="submit" className="w-full h-11 text-base shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all" size="lg" disabled={isLoading}>
+                                <Button type="submit" className="w-full h-11 text-base bg-white text-black hover:bg-zinc-200 transition-colors font-semibold" size="lg" disabled={isLoading}>
                                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Verify OTP"}
                                 </Button>
 
                                 <div className="text-center">
                                     <Button
                                         variant="link"
-                                        className="text-sm text-muted-foreground hover:text-primary"
+                                        className="text-sm text-zinc-400 hover:text-white"
                                         type="button"
                                         onClick={() => console.log("Resending OTP...")}
                                     >
@@ -252,7 +261,7 @@ export default function RegisterPage() {
                                     </Button>
                                     <Button
                                         variant="link"
-                                        className="text-sm text-muted-foreground hover:text-primary block mx-auto mt-2"
+                                        className="text-sm text-zinc-400 hover:text-white block mx-auto mt-2"
                                         type="button"
                                         onClick={() => setStep("register")}
                                     >
@@ -262,10 +271,10 @@ export default function RegisterPage() {
                             </form>
                         )}
                     </CardContent>
-                    <CardFooter className="flex justify-center pt-2 pb-8">
-                        <div className="text-sm text-muted-foreground">
+                    <CardFooter className="flex justify-center pt-4 pb-8">
+                        <div className="text-sm text-zinc-500">
                             Already have an account?{" "}
-                            <Link href="/login" className="font-medium text-primary hover:underline hover:text-primary/80 transition-colors">
+                            <Link href="/login" className="font-medium text-purple-400 hover:underline hover:text-purple-300 transition-colors">
                                 Login
                             </Link>
                         </div>

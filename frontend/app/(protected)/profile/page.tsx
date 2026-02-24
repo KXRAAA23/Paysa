@@ -152,7 +152,9 @@ export default function ProfilePage() {
                     <CardContent className="space-y-6">
 
                         {message && (
-                            <div className={`p-3 rounded-md text-sm ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            <div className={`p-3 rounded-lg text-sm border ${message.type === 'success'
+                                ? 'bg-green-500/15 border-green-500/30 text-green-500 dark:text-green-400'
+                                : 'bg-red-500/15 border-red-500/30 text-red-500 dark:text-red-400'}`}>
                                 {message.text}
                             </div>
                         )}

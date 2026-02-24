@@ -200,9 +200,11 @@ export default function ExpensesPage() {
                             <Card key={expense._id} className="hover:shadow-md transition-shadow">
                                 <CardContent className="p-4 flex flex-col md:flex-row items-start md:items-center gap-4">
                                     {/* Icon */}
-                                    <div className={`p-3 rounded-full shrink-0 ${expense.category === 'Food' ? 'bg-orange-100 text-orange-600' :
-                                        expense.category === 'Travel' ? 'bg-blue-100 text-blue-600' :
-                                            'bg-slate-100 text-slate-600'
+                                    <div className={`p-3 rounded-xl shrink-0 ${expense.category === 'Food' ? 'bg-orange-500/15 text-orange-500' :
+                                        expense.category === 'Travel' ? 'bg-blue-500/15 text-blue-500' :
+                                            expense.category === 'Shopping' ? 'bg-pink-500/15 text-pink-500' :
+                                                expense.category === 'Home' ? 'bg-teal-500/15 text-teal-500' :
+                                                    'bg-muted text-muted-foreground'
                                         }`}>
                                         <Icon className="h-5 w-5" />
                                     </div>
@@ -220,7 +222,7 @@ export default function ExpensesPage() {
                                             <span className="mx-1">•</span>
                                             {format(new Date(expense.createdAt), "MMM d, yyyy")}
                                             <span className="mx-1">•</span>
-                                            <span className="text-indigo-600 font-medium">{expense.groupName}</span>
+                                            <span className="text-primary font-medium">{expense.groupName}</span>
                                         </p>
                                     </div>
 
@@ -230,7 +232,7 @@ export default function ExpensesPage() {
                                             <p className="text-xs text-muted-foreground uppercase font-semibold">
                                                 {isPayer ? 'You lent' : 'You borrowed'}
                                             </p>
-                                            <p className={`text-lg font-bold ${isPayer ? 'text-green-600' : 'text-red-600'}`}>
+                                            <p className={`text-lg font-bold ${isPayer ? 'text-green-500' : 'text-red-500'}`}>
                                                 {isPayer ? `₹${(expense.totalAmount - myShare).toFixed(2)}` : `₹${myShare.toFixed(2)}`}
                                             </p>
                                         </div>
@@ -256,7 +258,7 @@ export default function ExpensesPage() {
                     })}
                 </div>
             ) : (
-                <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed rounded-xl bg-slate-50/50">
+                <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-border rounded-xl bg-muted/30">
                     <Receipt className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
                     <h3 className="text-lg font-semibold">No expenses found</h3>
                     <p className="text-muted-foreground max-w-sm mt-2">

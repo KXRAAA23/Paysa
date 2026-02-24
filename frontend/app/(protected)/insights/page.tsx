@@ -183,7 +183,7 @@ export default function InsightsPage() {
         <div className="space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">Insights</h1>
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Insights</h1>
                     <p className="text-muted-foreground mt-1">Analyze your spending habits and financial health.</p>
                 </div>
                 <div className="flex gap-2">
@@ -197,8 +197,8 @@ export default function InsightsPage() {
             {tips.length > 0 && (
                 <div className="space-y-4">
                     <div className="flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-indigo-600" />
-                        <h2 className="text-lg font-semibold text-slate-800">AI Financial Insights</h2>
+                        <Sparkles className="h-5 w-5 text-primary" />
+                        <h2 className="text-lg font-semibold text-foreground">AI Financial Insights</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {tips.map((tip, index) => (
@@ -284,10 +284,10 @@ export default function InsightsPage() {
                                         <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
                                         <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value}`} />
                                         <Tooltip
-                                            contentStyle={{ backgroundColor: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}
-                                            itemStyle={{ color: "#0F172A", fontWeight: "bold" }}
+                                            contentStyle={{ backgroundColor: "hsl(var(--card))", borderRadius: "12px", border: "1px solid hsl(var(--border))", color: "hsl(var(--foreground))" }}
+                                            itemStyle={{ color: "hsl(var(--foreground))" }}
                                         />
-                                        <Line type="monotone" dataKey="uv" stroke="#6366f1" strokeWidth={3} activeDot={{ r: 6 }} name="Spent" />
+                                        <Line type="monotone" dataKey="uv" stroke="hsl(252, 85%, 68%)" strokeWidth={3} activeDot={{ r: 6 }} name="Spent" />
                                     </LineChart>
                                 </ResponsiveContainer>
                             </CardContent>
@@ -352,10 +352,10 @@ export default function InsightsPage() {
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                                     <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
                                     <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                                    <Tooltip cursor={{ fill: '#F1F5F9' }} />
+                                    <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} />
                                     <Legend />
-                                    <Bar dataKey="MySpend" name="My Share" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={50} />
-                                    <Bar dataKey="TotalGroup" name="Total Group Spending" fill="#e2e8f0" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                                    <Bar dataKey="MySpend" name="My Share" fill="hsl(252, 85%, 68%)" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                                    <Bar dataKey="TotalGroup" name="Total Group Spending" fill="hsl(220, 8%, 30%)" radius={[4, 4, 0, 0]} maxBarSize={50} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </CardContent>

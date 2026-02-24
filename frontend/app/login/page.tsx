@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Check, Loader2, Play } from "lucide-react" // Icons
+import { Check, Loader2, Play, Zap } from "lucide-react" // Icons
 
 export default function LoginPage() {
   const router = useRouter()
@@ -61,29 +61,38 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50/50 dark:bg-zinc-950 px-4 py-8">
-      <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-500">
-        <div className="mb-6 flex justify-center">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary">
-            {/* Logo icon could go here */}
-            Paysa
+    <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden">
+
+      {/* Aurora Background */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-[-20%] left-[-20%] w-[800px] h-[800px] bg-purple-600/30 rounded-full blur-[140px] animate-blob mix-blend-screen opacity-50"></div>
+        <div className="absolute bottom-[-20%] right-[-20%] w-[800px] h-[800px] bg-blue-600/30 rounded-full blur-[140px] animate-blob animation-delay-2000 mix-blend-screen opacity-50"></div>
+      </div>
+
+      <div className="w-full max-w-md z-10 px-4">
+        <div className="mb-8 flex justify-center">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="bg-white/10 p-2 rounded-xl backdrop-blur-md border border-white/10 group-hover:bg-white/20 transition-colors">
+              <Zap className="h-6 w-6 text-white" fill="currentColor" />
+            </div>
+            <span className="font-bold text-3xl tracking-tight text-white">Paysa</span>
           </Link>
         </div>
 
-        <Card className="border-none shadow-xl shadow-zinc-200/50 dark:shadow-none bg-white dark:bg-zinc-900 ring-1 ring-zinc-200 dark:ring-zinc-800">
-          <CardHeader className="space-y-1 text-center pb-8">
-            <CardTitle className="text-2xl font-bold tracking-tight">
+        <Card className="border-white/10 bg-black/40 backdrop-blur-2xl shadow-2xl ring-1 ring-white/10">
+          <CardHeader className="space-y-1 text-center pb-8 pt-8">
+            <CardTitle className="text-3xl font-bold tracking-tight text-white">
               Welcome back
             </CardTitle>
-            <CardDescription className="text-muted-foreground">
+            <CardDescription className="text-zinc-400">
               Enter your credentials to access your account
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-zinc-300">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -91,14 +100,14 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-11 bg-zinc-50 dark:bg-zinc-950/50 border-zinc-200 dark:border-zinc-800 focus:ring-primary focus:border-primary transition-all"
+                  className="h-11 bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
                 />
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Link href="#" className="text-xs text-primary hover:underline">Forgot password?</Link>
+                  <Label htmlFor="password" className="text-zinc-300">Password</Label>
+                  <Link href="#" className="text-xs text-purple-400 hover:text-purple-300 hover:underline">Forgot password?</Link>
                 </div>
                 <Input
                   id="password"
@@ -106,17 +115,17 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="h-11 bg-zinc-50 dark:bg-zinc-950/50 border-zinc-200 dark:border-zinc-800 focus:ring-primary focus:border-primary transition-all"
+                  className="h-11 bg-white/5 border-white/10 text-white focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
                 />
               </div>
 
               {error && (
-                <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm text-center font-medium">
+                <div className="p-3 rounded-md bg-red-500/10 border border-red-500/20 text-red-200 text-sm text-center font-medium">
                   {error}
                 </div>
               )}
 
-              <Button type="submit" className="w-full h-11 text-base shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all" disabled={isLoading}>
+              <Button type="submit" className="w-full h-11 text-base bg-white text-black hover:bg-zinc-200 transition-colors font-semibold" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging in...
@@ -129,10 +138,10 @@ export default function LoginPage() {
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <Separator />
+                <Separator className="bg-white/10" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white dark:bg-zinc-900 px-2 text-muted-foreground">
+                <span className="bg-black/40 px-2 text-zinc-500 backdrop-blur-md">
                   Or continue with
                 </span>
               </div>
@@ -140,7 +149,7 @@ export default function LoginPage() {
 
             <Button
               variant="outline"
-              className="w-full h-11 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+              className="w-full h-11 bg-white/5 border-white/10 text-white hover:bg-white/10 hover:text-white transition-colors"
               type="button"
               onClick={handleGoogleLogin}
             >
@@ -166,9 +175,9 @@ export default function LoginPage() {
             </Button>
           </CardContent>
 
-          <CardFooter className="flex justify-center text-sm pt-4">
-            <span className="text-muted-foreground">Don&apos;t have an account?</span>{" "}
-            <Link href="/register" className="ml-1 font-medium text-primary hover:underline hover:text-primary/80 transition-colors">
+          <CardFooter className="flex justify-center text-sm pt-4 pb-8">
+            <span className="text-zinc-500">Don&apos;t have an account?</span>{" "}
+            <Link href="/register" className="ml-1 font-medium text-purple-400 hover:underline hover:text-purple-300 transition-colors">
               Sign up
             </Link>
           </CardFooter>

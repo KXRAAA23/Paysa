@@ -544,9 +544,11 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
 
             {/* Feedback Toast */}
             {notification && (
-                <div className={`p-4 rounded-lg shadow-sm border animate-in fade-in slide-in-from-top-4 fixed top-4 right-4 z-50 flex items-center gap-3 ${notification.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'
+                <div className={`p-4 rounded-xl shadow-lg border animate-in fade-in slide-in-from-top-4 fixed top-4 right-4 z-50 flex items-center gap-3 max-w-sm ${notification.type === 'success'
+                    ? 'bg-green-500/15 border-green-500/30 text-green-500 dark:text-green-400'
+                    : 'bg-red-500/15 border-red-500/30 text-red-500 dark:text-red-400'
                     }`}>
-                    {notification.type === 'success' ? <CheckCircle2 className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
+                    {notification.type === 'success' ? <CheckCircle2 className="h-5 w-5 shrink-0" /> : <AlertCircle className="h-5 w-5 shrink-0" />}
                     <p className="text-sm font-medium">{notification.text}</p>
                 </div>
             )}
@@ -559,35 +561,35 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
 
                 <TabsContent value="expenses" className="space-y-6">
                     {/* Balance Card */}
-                    <Card className="bg-gradient-to-br from-slate-50 to-white border-slate-200">
-                        <CardHeader>
-                            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Your Position</CardTitle>
+                    <Card>
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Your Position</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="flex flex-col gap-2">
                                 {owedToYou > 0 && (
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-2xl font-bold text-green-600">
+                                        <span className="text-2xl font-bold text-green-500 dark:text-green-400">
                                             +₹{owedToYou.toFixed(2)}
                                         </span>
-                                        <span className="text-muted-foreground font-medium">
+                                        <span className="text-muted-foreground font-medium text-sm">
                                             owed to you
                                         </span>
                                     </div>
                                 )}
                                 {youOwe > 0 && (
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-2xl font-bold text-red-600">
+                                        <span className="text-2xl font-bold text-red-500 dark:text-red-400">
                                             -₹{youOwe.toFixed(2)}
                                         </span>
-                                        <span className="text-muted-foreground font-medium">
+                                        <span className="text-muted-foreground font-medium text-sm">
                                             you owe
                                         </span>
                                     </div>
                                 )}
                                 {owedToYou === 0 && youOwe === 0 && (
-                                    <div className="text-slate-500 font-medium">
-                                        All settled up!
+                                    <div className="text-muted-foreground font-medium">
+                                        All settled up! ✓
                                     </div>
                                 )}
                             </div>
@@ -608,12 +610,12 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                         </CardHeader>
                         <CardContent>
                             {expenses.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-12 text-center animate-in fade-in zoom-in-95 duration-500 border-2 border-dashed rounded-xl bg-slate-50/50">
-                                    <div className="bg-white p-4 rounded-full shadow-sm mb-4">
+                                <div className="flex flex-col items-center justify-center py-12 text-center animate-in fade-in zoom-in-95 duration-500 border-2 border-dashed border-border rounded-xl bg-muted/30">
+                                    <div className="bg-muted p-4 rounded-full shadow-sm mb-4">
                                         <Wallet className="h-8 w-8 text-primary" />
                                     </div>
-                                    <h3 className="text-lg font-semibold text-slate-900">No expenses yet</h3>
-                                    <p className="text-slate-500 text-sm max-w-xs mb-6">
+                                    <h3 className="text-lg font-semibold text-foreground">No expenses yet</h3>
+                                    <p className="text-muted-foreground text-sm max-w-xs mb-6">
                                         Add an expense to start tracking balances with your group.
                                     </p>
                                     <Button onClick={() => setShowExpenseModal(true)} variant="outline" className="gap-2">
@@ -639,19 +641,19 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                             splitSummary = pendingAmount > 0
                                                 ? `You are owed ₹${pendingAmount.toFixed(2)}`
                                                 : "All settled"
-                                            splitColor = pendingAmount > 0 ? "text-green-600" : "text-slate-500"
+                                            splitColor = pendingAmount > 0 ? "text-green-500 dark:text-green-400" : "text-muted-foreground"
                                         } else if (mySplit) {
                                             if (mySplit.settled) {
                                                 splitSummary = "Settled"
-                                                splitColor = "text-slate-500"
+                                                splitColor = "text-muted-foreground"
                                             } else {
                                                 splitSummary = `You owe ₹${mySplit.amount.toFixed(2)}`
-                                                splitColor = "text-red-600"
+                                                splitColor = "text-red-500 dark:text-red-400"
                                             }
                                         }
 
                                         return (
-                                            <div key={exp._id} className="border rounded-lg bg-card overflow-hidden group transition-all hover:bg-slate-50/50">
+                                            <div key={exp._id} className="border border-border rounded-xl bg-card overflow-hidden group transition-all hover:bg-muted/30">
                                                 <div
                                                     className="flex items-center justify-between p-4 cursor-pointer"
                                                     onClick={() => setExpandedExpenseId(isExpanded ? null : exp._id)}
@@ -666,19 +668,19 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                                                     href={`http://localhost:5000/${exp.billUrl}`}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
-                                                                    className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-sm border hover:bg-slate-50 transition-colors cursor-pointer block"
+                                                                    className="absolute -bottom-1 -right-1 bg-card rounded-full p-1 shadow-sm border border-border hover:bg-muted transition-colors cursor-pointer block"
                                                                     title="View Receipt"
                                                                     onClick={(e) => e.stopPropagation()}
                                                                 >
-                                                                    <FileText className="h-3 w-3 text-blue-600" />
+                                                                    <FileText className="h-3 w-3 text-primary" />
                                                                 </a>
                                                             )}
                                                         </div>
 
                                                         <div>
-                                                            <p className="font-medium text-slate-900 line-clamp-1">{exp.title}</p>
+                                                            <p className="font-medium text-foreground line-clamp-1">{exp.title}</p>
                                                             <p className="text-xs text-muted-foreground mt-0.5">
-                                                                {isPayer ? 'You' : (exp.paidBy?.name || 'Unknown')} paid <span className="font-medium text-slate-700">₹{exp.totalAmount}</span>
+                                                                {isPayer ? 'You' : (exp.paidBy?.name || 'Unknown')} paid <span className="font-medium text-foreground">₹{exp.totalAmount}</span>
                                                             </p>
                                                             <p className="text-xs text-muted-foreground">
                                                                 {new Date(exp.createdAt).toLocaleDateString()}
@@ -705,20 +707,20 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                                                 const isMe = split.user?._id === currentUserId
 
                                                                 return (
-                                                                    <div key={split.user?._id || Math.random()} className="flex items-center justify-between text-sm p-2 rounded hover:bg-slate-100/50">
+                                                                    <div key={split.user?._id || Math.random()} className="flex items-center justify-between text-sm p-2 rounded-lg hover:bg-muted/50 transition-colors">
                                                                         <div className="flex items-center gap-2">
                                                                             <Avatar className="h-6 w-6">
-                                                                                <AvatarFallback>{split.user?.name?.charAt(0) || '?'}</AvatarFallback>
+                                                                                <AvatarFallback className="text-xs bg-primary/10 text-primary">{split.user?.name?.charAt(0) || '?'}</AvatarFallback>
                                                                             </Avatar>
-                                                                            <span className={isMe ? "font-medium" : ""}>
+                                                                            <span className={isMe ? "font-semibold text-foreground" : "text-foreground"}>
                                                                                 {isMe ? "You" : (split.user?.name || "Unknown User")}
                                                                             </span>
                                                                         </div>
                                                                         <div className="flex items-center gap-3">
-                                                                            <span className="text-slate-600">₹{split.amount.toFixed(2)}</span>
+                                                                            <span className="text-muted-foreground font-medium">₹{split.amount.toFixed(2)}</span>
 
                                                                             {split.settled ? (
-                                                                                <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">
+                                                                                <Badge className="bg-green-500/15 text-green-500 dark:text-green-400 border-0 text-xs">
                                                                                     Settled
                                                                                 </Badge>
                                                                             ) : (
@@ -727,7 +729,7 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                                                                         <Button
                                                                                             size="sm"
                                                                                             variant="outline"
-                                                                                            className="h-7 text-xs border-green-200 hover:bg-green-50 text-green-700"
+                                                                                            className="h-7 text-xs text-green-500 border-green-500/30 hover:bg-green-500/10"
                                                                                             onClick={() => handleSettle(exp._id)}
                                                                                         >
                                                                                             Mark Paid
@@ -737,14 +739,14 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                                                                         <Button
                                                                                             size="sm"
                                                                                             variant="outline"
-                                                                                            className="h-7 text-xs border-blue-200 hover:bg-blue-50 text-blue-700"
+                                                                                            className="h-7 text-xs text-primary border-primary/30 hover:bg-primary/10"
                                                                                             onClick={() => handleSettle(exp._id, split.user?._id)}
                                                                                         >
                                                                                             Mark Received
                                                                                         </Button>
                                                                                     )}
                                                                                     {!isMe && !isPayer && (
-                                                                                        <Badge variant="outline" className="text-slate-500">Pending</Badge>
+                                                                                        <Badge variant="outline" className="text-muted-foreground text-xs">Pending</Badge>
                                                                                     )}
                                                                                 </>
                                                                             )}
@@ -885,11 +887,11 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                                 <TableCell className="text-right pr-6">
                                                     <div className="flex items-center justify-end gap-2">
                                                         {status === "Joined" ? (
-                                                            <span className="inline-flex items-center text-green-600 text-xs font-medium bg-green-50 px-2 py-1 rounded-full border border-green-200">
+                                                            <span className="inline-flex items-center text-green-500 dark:text-green-400 text-xs font-medium bg-green-500/15 px-2 py-1 rounded-full border border-green-500/30">
                                                                 <CheckCircle2 className="h-3 w-3 mr-1" /> Joined
                                                             </span>
                                                         ) : (
-                                                            <span className="inline-flex items-center text-slate-500 text-xs font-medium bg-slate-100 px-2 py-1 rounded-full border border-slate-200">
+                                                            <span className="inline-flex items-center text-muted-foreground text-xs font-medium bg-muted px-2 py-1 rounded-full border border-border">
                                                                 <Mail className="h-3 w-3 mr-1" /> Invited
                                                             </span>
                                                         )}
@@ -921,21 +923,21 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
             {showexpenseModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in overflow-y-auto">
                     {/* ... existing modal code ... */}
-                    <Card className="w-full max-w-lg bg-white shadow-2xl my-8">
+                    <Card className="w-full max-w-lg bg-card shadow-2xl my-8">
                         <CardHeader>
                             <CardTitle>Add New Expense</CardTitle>
                             <CardDescription>Enter details and split method</CardDescription>
                         </CardHeader>
                         <div className="px-6 pb-2">
                             {/* ... scan area ... */}
-                            <div className="flex items-center gap-2 p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
-                                <Sparkles className="h-5 w-5 text-indigo-600" />
+                            <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-xl">
+                                <Sparkles className="h-5 w-5 text-primary" />
                                 <div className="flex-1">
-                                    <p className="text-sm font-medium text-indigo-900">Have a receipt?</p>
-                                    <p className="text-xs text-indigo-700">Scan it to auto-fill details.</p>
+                                    <p className="text-sm font-medium text-foreground">Have a receipt?</p>
+                                    <p className="text-xs text-muted-foreground">Scan it to auto-fill details.</p>
                                 </div>
                                 <div className="relative">
-                                    <Button type="button" size="sm" variant="secondary" className="bg-indigo-100 text-indigo-700 hover:bg-indigo-200" disabled={isAnalyzing}>
+                                    <Button type="button" size="sm" variant="secondary" disabled={isAnalyzing}>
                                         {isAnalyzing ? "Scanning..." : "Scan Receipt"}
                                     </Button>
                                     <Input
@@ -1018,13 +1020,13 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                 {scannedItems.length > 0 && (
                                     <div className="space-y-4 animate-in slide-in-from-top-2">
                                         <div className="flex items-center justify-between">
-                                            <Label className="text-base font-semibold text-slate-800">Item Breakdown</Label>
-                                            <Button type="button" variant="ghost" size="sm" className="h-8 text-xs text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => setScannedItems([])}>Clear All</Button>
+                                            <Label className="text-base font-semibold text-foreground">Item Breakdown</Label>
+                                            <Button type="button" variant="ghost" size="sm" className="h-8 text-xs text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setScannedItems([])}>Clear All</Button>
                                         </div>
 
-                                        <div className="border rounded-xl overflow-hidden bg-white shadow-sm ring-1 ring-slate-200">
+                                        <div className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
                                             {/* Table Header */}
-                                            <div className="grid grid-cols-12 gap-2 bg-slate-50/80 p-3 border-b text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                            <div className="grid grid-cols-12 gap-2 bg-muted/60 p-3 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                                                 <div className="col-span-3">Type</div>
                                                 <div className="col-span-5">Item</div>
                                                 <div className="col-span-3 text-right">Amount</div>
@@ -1032,7 +1034,7 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                             </div>
 
                                             {/* Items List */}
-                                            <div className="max-h-60 overflow-y-auto divide-y divide-slate-100">
+                                            <div className="max-h-60 overflow-y-auto divide-y divide-border">
                                                 {scannedItems.map((item, idx) => (
                                                     <div key={idx} className="grid grid-cols-12 gap-2 p-2 items-center hover:bg-slate-50_30 transition-colors group">
                                                         {/* Type Selector */}
@@ -1066,7 +1068,7 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                                         {/* Name Input */}
                                                         <div className="col-span-5">
                                                             <Input
-                                                                className="h-8 border-0 bg-transparent p-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-slate-300 font-medium text-slate-700"
+                                                                className="h-8 border-0 bg-transparent p-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/50 font-medium text-foreground"
                                                                 placeholder="Item Name"
                                                                 value={item.name}
                                                                 onChange={(e) => {
@@ -1082,7 +1084,7 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                                             <div className="relative">
                                                                 <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-1 text-slate-400 text-xs">₹</span>
                                                                 <Input
-                                                                    className="h-8 w-full border-0 bg-transparent py-0 pl-4 pr-1 text-sm text-right focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-slate-300 font-semibold text-slate-900"
+                                                                    className="h-8 w-full border-0 bg-transparent py-0 pl-4 pr-1 text-sm text-right focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/50 font-semibold text-foreground"
                                                                     type="number"
                                                                     placeholder="0.00"
                                                                     value={item.amount}
@@ -1102,7 +1104,7 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                                                 type="button"
                                                                 variant="ghost"
                                                                 size="icon"
-                                                                className="h-7 w-7 text-slate-400 hover:text-red-600 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
                                                                 onClick={() => {
                                                                     const newItems = scannedItems.filter((_, i) => i !== idx)
                                                                     setScannedItems(newItems)
@@ -1116,18 +1118,18 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                             </div>
 
                                             {/* Footer Actions */}
-                                            <div className="bg-slate-50/50 p-2 border-t flex items-center justify-between">
+                                            <div className="bg-muted/50 p-2 border-t border-border flex items-center justify-between">
                                                 <Button
                                                     type="button"
                                                     variant="ghost"
                                                     size="sm"
-                                                    className="h-8 text-xs text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                                                    className="h-8 text-xs text-primary hover:text-primary hover:bg-primary/10"
                                                     onClick={() => setScannedItems([...scannedItems, { name: "", amount: 0, type: "Food" }])}
                                                 >
                                                     <Plus className="h-3.5 w-3.5 mr-1.5" /> Add Item
                                                 </Button>
-                                                <div className="text-sm font-semibold text-slate-700 pr-2">
-                                                    Total: <span className="text-slate-900">₹{scannedItems.reduce((sum, item) => sum + (parseFloat(item.amount.toString()) || 0), 0).toFixed(2)}</span>
+                                                <div className="text-sm font-semibold text-muted-foreground pr-2">
+                                                    Total: <span className="text-foreground">₹{scannedItems.reduce((sum, item) => sum + (parseFloat(item.amount.toString()) || 0), 0).toFixed(2)}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1138,14 +1140,13 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                 <div className="space-y-3">
                                     <Label>Split Method</Label>
                                     <div className="flex gap-4">
-                                        <div
-                                            className={`flex-1 border rounded-md p-3 cursor-pointer text-center transition-all ${splitType === 'equal' ? 'bg-primary/10 border-primary text-primary font-medium' : 'hover:bg-slate-50'}`}
+                                        <div className="flex-1 border rounded-xl p-3 cursor-pointer text-center transition-all font-medium ${splitType === 'equal' ? 'bg-primary/10 border-primary text-primary font-medium' : 'hover:bg-muted/50 text-foreground'}"
                                             onClick={() => setSplitType('equal')}
                                         >
                                             Equally
                                         </div>
                                         <div
-                                            className={`flex-1 border rounded-md p-3 cursor-pointer text-center transition-all ${splitType === 'custom' ? 'bg-primary/10 border-primary text-primary font-medium' : 'hover:bg-slate-50'}`}
+                                            className={`flex-1 border rounded-xl p-3 cursor-pointer text-center transition-all ${splitType === 'custom' ? 'bg-primary/10 border-primary text-primary font-medium' : 'hover:bg-muted/50 text-foreground'}`}
                                             onClick={() => setSplitType('custom')}
                                         >
                                             Custom
@@ -1155,18 +1156,18 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
 
                                 {/* Custom Splits UI */}
                                 {splitType === 'custom' && (
-                                    <div className="space-y-3 bg-slate-50 p-4 rounded-lg border">
+                                    <div className="space-y-3 bg-muted/40 p-4 rounded-xl border border-border">
                                         <Label className="text-xs text-muted-foreground uppercase tracking-wide">Enter share for each member</Label>
                                         {group?.members.map(member => (
                                             <div key={member._id} className="flex items-center gap-3">
                                                 <Avatar className="h-6 w-6">
                                                     <AvatarImage src={member.avatar} />
-                                                    <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                                                    <AvatarFallback className="text-xs bg-primary/10 text-primary">{member.name.charAt(0)}</AvatarFallback>
                                                 </Avatar>
-                                                <span className="text-sm flex-1 truncate">{member.name}</span>
+                                                <span className="text-sm flex-1 truncate text-foreground">{member.name}</span>
                                                 <Input
                                                     type="number"
-                                                    className="w-24 h-8 text-right bg-white"
+                                                    className="w-24 h-8 text-right"
                                                     placeholder="0.00"
                                                     value={customSplits[member._id] || ""}
                                                     onChange={e => setCustomSplits(prev => ({ ...prev, [member._id]: e.target.value }))}
@@ -1190,7 +1191,7 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                             className="cursor-pointer"
                                         />
                                     ) : (
-                                        <div className="flex items-center justify-between p-3 border rounded-md bg-slate-50">
+                                        <div className="flex items-center justify-between p-3 border border-border rounded-xl bg-muted/40">
                                             <div className="flex items-center gap-2 overflow-hidden">
                                                 <FileText className="h-4 w-4 text-primary flex-shrink-0" />
                                                 <span className="text-sm truncate">{billFile.name}</span>

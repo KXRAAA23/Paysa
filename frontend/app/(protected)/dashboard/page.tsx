@@ -185,7 +185,14 @@ export default function DashboardPage() {
     }, [router])
 
     if (loading) {
-        return <div className="flex justify-center items-center h-[50vh]">Loading Dashboard...</div>
+        return (
+            <div className="flex justify-center items-center h-[50vh]">
+                <div className="flex flex-col items-center gap-3">
+                    <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                    <p className="text-sm text-muted-foreground">Loading dashboard...</p>
+                </div>
+            </div>
+        )
     }
 
     return (
@@ -203,12 +210,12 @@ export default function DashboardPage() {
                         <CardTitle className="text-sm font-medium text-muted-foreground">
                             Total Balance
                         </CardTitle>
-                        <div className={`p-2 rounded-full ${stats.totalBalance < 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                        <div className={`p-2 rounded-lg ${stats.totalBalance < 0 ? 'bg-red-500/15 text-red-500' : 'bg-green-500/15 text-green-500'}`}>
                             <Wallet className="h-4 w-4" />
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className={`text-2xl font-bold ${stats.totalBalance < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        <div className={`text-2xl font-bold ${stats.totalBalance < 0 ? 'text-red-500' : 'text-green-500'}`}>
                             {stats.totalBalance < 0 ? '-' : '+'}₹{Math.abs(stats.totalBalance).toLocaleString()}
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -222,7 +229,7 @@ export default function DashboardPage() {
                         <CardTitle className="text-sm font-medium text-muted-foreground">
                             Active Groups
                         </CardTitle>
-                        <div className="p-2 rounded-full bg-blue-100 text-blue-600">
+                        <div className="p-2 rounded-lg bg-blue-500/15 text-blue-500">
                             <Users className="h-4 w-4" />
                         </div>
                     </CardHeader>
@@ -239,7 +246,7 @@ export default function DashboardPage() {
                         <CardTitle className="text-sm font-medium text-muted-foreground">
                             Pending Settlements
                         </CardTitle>
-                        <div className="p-2 rounded-full bg-orange-100 text-orange-600">
+                        <div className="p-2 rounded-lg bg-orange-500/15 text-orange-500">
                             <Clock className="h-4 w-4" />
                         </div>
                     </CardHeader>
@@ -277,7 +284,7 @@ export default function DashboardPage() {
                                         <CardTitle className="mt-3 text-base line-clamp-1">{group.name}</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className={`text-sm font-medium ${group.balance === 0 ? 'text-muted-foreground' : group.balance > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                        <div className={`text-sm font-medium ${group.balance === 0 ? 'text-muted-foreground' : group.balance > 0 ? 'text-green-500' : 'text-red-500'}`}>
                                             {group.balance === 0
                                                 ? "Settled"
                                                 : group.balance > 0
@@ -299,7 +306,7 @@ export default function DashboardPage() {
 
                 {/* Quick Actions (Takes 1 col) */}
                 <div className="space-y-6">
-                    <div className="bg-primary text-primary-foreground rounded-xl p-6 shadow-lg">
+                    <div className="bg-primary text-primary-foreground rounded-xl p-6 shadow-md shadow-primary/20">
                         <h3 className="text-lg font-semibold mb-2">Quick Actions</h3>
                         <p className="text-primary-foreground/80 text-sm mb-6">Record a new expense or settle up debts.</p>
                         <div className="space-y-3">
@@ -323,10 +330,10 @@ export default function DashboardPage() {
                             <div className="divide-y">
                                 {activities.map((activity) => (
                                     <div key={activity._id} className="flex items-center p-4 hover:bg-muted/50 transition-colors">
-                                        <div className={`h-10 w-10 rounded-full flex items-center justify-center mr-4 
-                                            ${activity.type === 'CREATE_GROUP' ? 'bg-blue-100 text-blue-600' :
-                                                activity.type === 'INVITE_MEMBER' ? 'bg-purple-100 text-purple-600' :
-                                                    activity.type === 'REMOVE_MEMBER' ? 'bg-red-100 text-red-600' : 'bg-muted text-muted-foreground'}`}>
+                                        <div className={`h-10 w-10 rounded-xl flex items-center justify-center mr-4 
+                                            ${activity.type === 'CREATE_GROUP' ? 'bg-blue-500/15 text-blue-500' :
+                                                activity.type === 'INVITE_MEMBER' ? 'bg-violet-500/15 text-violet-500' :
+                                                    activity.type === 'REMOVE_MEMBER' ? 'bg-red-500/15 text-red-500' : 'bg-muted text-muted-foreground'}`}>
                                             {activity.type === 'CREATE_GROUP' && <Plus className="h-5 w-5" />}
                                             {activity.type === 'INVITE_MEMBER' && <UserPlus className="h-5 w-5" />}
                                             {activity.type === 'REMOVE_MEMBER' && <UserMinus className="h-5 w-5" />}

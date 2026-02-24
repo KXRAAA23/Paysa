@@ -32,11 +32,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
+import { useTheme } from "next-themes"
+
 export default function SettingsPage() {
     const router = useRouter()
+    const { theme, setTheme } = useTheme()
 
     // State
-    const [theme, setTheme] = useState("system") // light, dark, system
     const [notifications, setNotifications] = useState({
         expenses: true,
         settlements: true,
@@ -45,14 +47,8 @@ export default function SettingsPage() {
     const [currency, setCurrency] = useState("INR")
     const [splitMethod, setSplitMethod] = useState("equal")
 
-    // Determine initial theme on load
+    // Fetch User Settings
     useEffect(() => {
-        const storedTheme = localStorage.getItem("theme")
-        if (storedTheme) {
-            setTheme(storedTheme)
-        }
-
-        // Fetch User Settings
         const fetchSettings = async () => {
             try {
                 const token = localStorage.getItem("token")
@@ -72,22 +68,6 @@ export default function SettingsPage() {
 
         fetchSettings();
     }, [])
-
-    // Theme Handler
-    const handleThemeChange = (newTheme: string) => {
-        setTheme(newTheme)
-        localStorage.setItem("theme", newTheme)
-
-        // Apply theme
-        const root = window.document.documentElement
-        root.classList.remove("light", "dark")
-
-        if (newTheme === "dark") {
-            root.classList.add("dark")
-        } else {
-            root.classList.remove("dark")
-        }
-    }
 
     const handleLogout = () => {
         localStorage.removeItem("token")
@@ -121,10 +101,10 @@ export default function SettingsPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-3 gap-4">
                                 <div
                                     className={`cursor-pointer rounded-lg border-2 p-4 flex flex-col items-center gap-2 hover:bg-muted transition-all ${theme === 'light' ? 'border-primary bg-primary/5' : 'border-muted'}`}
-                                    onClick={() => handleThemeChange('light')}
+                                    onClick={() => setTheme('light')}
                                 >
                                     <div className="h-10 w-10 rounded-full bg-white border shadow-sm flex items-center justify-center">
                                         <Sun className="h-5 w-5 text-orange-500" />
@@ -133,12 +113,21 @@ export default function SettingsPage() {
                                 </div>
                                 <div
                                     className={`cursor-pointer rounded-lg border-2 p-4 flex flex-col items-center gap-2 hover:bg-muted transition-all ${theme === 'dark' ? 'border-primary bg-primary/5' : 'border-muted'}`}
-                                    onClick={() => handleThemeChange('dark')}
+                                    onClick={() => setTheme('dark')}
                                 >
                                     <div className="h-10 w-10 rounded-full bg-slate-950 border shadow-sm flex items-center justify-center">
                                         <Moon className="h-5 w-5 text-indigo-400" />
                                     </div>
                                     <span className="font-medium text-sm">Dark</span>
+                                </div>
+                                <div
+                                    className={`cursor-pointer rounded-lg border-2 p-4 flex flex-col items-center gap-2 hover:bg-muted transition-all ${theme === 'system' ? 'border-primary bg-primary/5' : 'border-muted'}`}
+                                    onClick={() => setTheme('system')}
+                                >
+                                    <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 border shadow-sm flex items-center justify-center">
+                                        <Monitor className="h-5 w-5 text-foreground" />
+                                    </div>
+                                    <span className="font-medium text-sm">System</span>
                                 </div>
 
                             </div>
@@ -161,7 +150,7 @@ export default function SettingsPage() {
                                 </div>
                                 <input
                                     type="checkbox"
-                                    className="h-5 w-5 text-primary rounded focus:ring-primary"
+                                    className="h-5 w-5 text-primary rounded accent-primary cursor-pointer focus:ring-primary"
                                     checked={notifications.expenses}
                                     onChange={async (e) => {
                                         const newVal = e.target.checked;
@@ -191,7 +180,7 @@ export default function SettingsPage() {
                                 </div>
                                 <input
                                     type="checkbox"
-                                    className="h-5 w-5 text-primary rounded focus:ring-primary"
+                                    className="h-5 w-5 text-primary rounded accent-primary cursor-pointer focus:ring-primary"
                                     checked={notifications.settlements}
                                     onChange={async (e) => {
                                         const newVal = e.target.checked;
@@ -220,7 +209,7 @@ export default function SettingsPage() {
                                 </div>
                                 <input
                                     type="checkbox"
-                                    className="h-5 w-5 text-primary rounded focus:ring-primary"
+                                    className="h-5 w-5 text-primary rounded accent-primary cursor-pointer focus:ring-primary"
                                     checked={notifications.email}
                                     onChange={async (e) => {
                                         const newVal = e.target.checked;
@@ -269,11 +258,11 @@ export default function SettingsPage() {
                             </div>
                             <Separator />
                             <div className="space-y-4">
-                                <h3 className="text-sm font-medium text-red-600">Danger Zone</h3>
-                                <div className="flex items-center justify-between bg-red-50 p-4 rounded-lg border border-red-100">
+                                <h3 className="text-sm font-semibold text-destructive">Danger Zone</h3>
+                                <div className="flex items-center justify-between bg-destructive/10 p-4 rounded-xl border border-destructive/30">
                                     <div>
-                                        <p className="font-medium text-red-900">Sign out of all devices</p>
-                                        <p className="text-sm text-red-700">This will require you to log in again on all devices.</p>
+                                        <p className="font-medium text-foreground">Sign out of all devices</p>
+                                        <p className="text-sm text-muted-foreground">This will require you to log in again on all devices.</p>
                                     </div>
                                     <Button variant="destructive" size="sm" onClick={handleLogout}>Log Out</Button>
                                 </div>
