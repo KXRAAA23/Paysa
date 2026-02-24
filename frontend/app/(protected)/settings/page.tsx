@@ -47,6 +47,12 @@ export default function SettingsPage() {
     const [currency, setCurrency] = useState("INR")
     const [splitMethod, setSplitMethod] = useState("equal")
 
+    // Password State
+    const [currentPassword, setCurrentPassword] = useState("")
+    const [newPassword, setNewPassword] = useState("")
+    const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
+    const [passwordMessage, setPasswordMessage] = useState({ text: "", type: "" })
+
     // Fetch User Settings
     useEffect(() => {
         const fetchSettings = async () => {
@@ -73,6 +79,42 @@ export default function SettingsPage() {
         localStorage.removeItem("token")
         localStorage.removeItem("userId")
         router.push("/login")
+    }
+
+    const handleUpdatePassword = async () => {
+        if (!currentPassword || !newPassword) {
+            setPasswordMessage({ text: "Please fill both fields.", type: "error" })
+            return
+        }
+
+        setIsUpdatingPassword(true)
+        setPasswordMessage({ text: "", type: "" })
+
+        try {
+            const token = localStorage.getItem("token")
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/users/change-password`, {
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ currentPassword, newPassword })
+            })
+
+            const data = await res.json()
+            if (res.ok) {
+                setPasswordMessage({ text: "Password updated successfully!", type: "success" })
+                setCurrentPassword("")
+                setNewPassword("")
+            } else {
+                setPasswordMessage({ text: data.message || "Failed to update password.", type: "error" })
+            }
+        } catch (error) {
+            setPasswordMessage({ text: "An error occurred. Please try again.", type: "error" })
+        } finally {
+            setIsUpdatingPassword(false)
+            setTimeout(() => setPasswordMessage({ text: "", type: "" }), 5000)
+        }
     }
 
     return (
@@ -247,13 +289,20 @@ export default function SettingsPage() {
                                 <div className="grid gap-4">
                                     <div className="grid gap-2">
                                         <Label htmlFor="current">Current Password</Label>
-                                        <Input id="current" type="password" />
+                                        <Input id="current" type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} />
                                     </div>
                                     <div className="grid gap-2">
                                         <Label htmlFor="new">New Password</Label>
-                                        <Input id="new" type="password" />
+                                        <Input id="new" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
                                     </div>
-                                    <Button variant="outline" className="w-fit">Update Password</Button>
+                                    {passwordMessage.text && (
+                                        <p className={`text-sm ${passwordMessage.type === 'error' ? 'text-destructive' : 'text-green-500'}`}>
+                                            {passwordMessage.text}
+                                        </p>
+                                    )}
+                                    <Button variant="outline" className="w-fit" onClick={handleUpdatePassword} disabled={isUpdatingPassword}>
+                                        {isUpdatingPassword ? "Updating..." : "Update Password"}
+                                    </Button>
                                 </div>
                             </div>
                             <Separator />

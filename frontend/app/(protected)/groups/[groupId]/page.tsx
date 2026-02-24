@@ -112,6 +112,8 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
     const [newExpenseAmount, setNewExpenseAmount] = useState("")
     const [newExpensePaidBy, setNewExpensePaidBy] = useState("")
     const [splitType, setSplitType] = useState<"equal" | "custom">("equal")
+    const [customSplitMode, setCustomSplitMode] = useState<'smart' | 'manual'>('smart')
+    const [foodPrefs, setFoodPrefs] = useState<Record<string, string[]>>({})
     const [customSplits, setCustomSplits] = useState<Record<string, string>>({})
     const [billFile, setBillFile] = useState<File | null>(null)
     const [isCreatingExpense, setIsCreatingExpense] = useState(false)
@@ -176,6 +178,8 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
             setNewExpenseAmount("")
             setNewExpensePaidBy("")
             setSplitType("equal")
+            setCustomSplitMode('smart')
+            setFoodPrefs({})
             setCustomSplits({})
             setBillFile(null)
             setScannedItems([])
@@ -290,8 +294,93 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
             setNewExpenseAmount(data.totalAmount.toString())
         }
         if (data.category) setCategory(data.category)
-        if (data.items && data.items.length > 0) setScannedItems(data.items)
+        if (data.items && data.items.length > 0) {
+            setScannedItems(data.items.map((item: any) => ({
+                name: item.name,
+                amount: item.amount,
+                type: item.subtype || (item.category === 'Alcohol' ? 'Alcohol' : 'Food')
+            })))
+        }
     }
+
+    useEffect(() => {
+        if (splitType === 'custom' && customSplitMode === 'smart' && group) {
+            const newSplits: Record<string, string> = {}
+            group.members.forEach(m => newSplits[m._id] = "0.00")
+
+            if (scannedItems.length === 0) return
+
+            let itemTotals = {
+                'Veg': 0,
+                'Non-Veg': 0,
+                'Beverage': 0,
+                'Alcohol': 0,
+                'Shared': 0
+            }
+
+            scannedItems.forEach(item => {
+                const amount = parseFloat(item.amount.toString()) || 0
+                if (item.type === 'Veg' || item.type === 'Non-Veg' || item.type === 'Beverage' || item.type === 'Alcohol') {
+                    itemTotals[item.type as keyof typeof itemTotals] += amount
+                } else {
+                    itemTotals['Shared'] += amount
+                }
+            })
+
+            const totalAmount = parseFloat(newExpenseAmount) || 0
+            const itemsSum = itemTotals['Veg'] + itemTotals['Non-Veg'] + itemTotals['Beverage'] + itemTotals['Alcohol'] + itemTotals['Shared']
+
+            const extra = Math.max(0, totalAmount - itemsSum)
+            itemTotals['Shared'] += extra
+
+            const optedIn = {
+                'Veg': group.members.filter(m => foodPrefs[m._id]?.includes('Veg')).length,
+                'Non-Veg': group.members.filter(m => foodPrefs[m._id]?.includes('Non-Veg')).length,
+                'Beverage': group.members.filter(m => foodPrefs[m._id]?.includes('Beverage')).length,
+                'Alcohol': group.members.filter(m => foodPrefs[m._id]?.includes('Alcohol')).length,
+            }
+
+            const amounts: Record<string, number> = {}
+            group.members.forEach(m => amounts[m._id] = 0)
+
+            const numMembers = group.members.length
+
+            group.members.forEach(m => {
+                let share = 0
+                const prefs = foodPrefs[m._id] || []
+
+                if (prefs.includes('Veg') && optedIn['Veg'] > 0) { share += itemTotals['Veg'] / optedIn['Veg'] }
+                else if (optedIn['Veg'] === 0) { share += itemTotals['Veg'] / numMembers }
+
+                if (prefs.includes('Non-Veg') && optedIn['Non-Veg'] > 0) { share += itemTotals['Non-Veg'] / optedIn['Non-Veg'] }
+                else if (optedIn['Non-Veg'] === 0) { share += itemTotals['Non-Veg'] / numMembers }
+
+                if (prefs.includes('Beverage') && optedIn['Beverage'] > 0) { share += itemTotals['Beverage'] / optedIn['Beverage'] }
+                else if (optedIn['Beverage'] === 0) { share += itemTotals['Beverage'] / numMembers }
+
+                if (prefs.includes('Alcohol') && optedIn['Alcohol'] > 0) { share += itemTotals['Alcohol'] / optedIn['Alcohol'] }
+                else if (optedIn['Alcohol'] === 0) { share += itemTotals['Alcohol'] / numMembers }
+
+                share += itemTotals['Shared'] / numMembers
+                amounts[m._id] = share
+            })
+
+            let calculatedTotal = 0
+            group.members.forEach(m => {
+                if (m._id !== group.members[0]._id) {
+                    const val = parseFloat(amounts[m._id].toFixed(2))
+                    newSplits[m._id] = val.toString()
+                    calculatedTotal += val
+                }
+            })
+
+            // Assign remainder to first member to avoid penny float issues
+            const firstId = group.members[0]._id
+            newSplits[firstId] = Math.max(0, totalAmount - calculatedTotal).toFixed(2)
+
+            setCustomSplits(newSplits)
+        }
+    }, [scannedItems, foodPrefs, splitType, customSplitMode, newExpenseAmount, group])
 
     const handleScanReceipt = async (file: File) => {
         setIsAnalyzing(true)
@@ -1042,10 +1131,11 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                                             <div className="relative">
                                                                 <select
                                                                     className={`block w-full appearance-none rounded-md border-0 py-1.5 pl-2 pr-4 text-xs font-medium ring-1 ring-inset focus:ring-2 focus:ring-inset sm:text-xs sm:leading-6 cursor-pointer outline-none transition-all
-                                                                        ${item.type === 'Veg' ? 'text-green-700 bg-green-50 ring-green-600/20 focus:ring-green-600/50' :
+                                                                            ${item.type === 'Veg' ? 'text-green-700 bg-green-50 ring-green-600/20 focus:ring-green-600/50' :
                                                                             item.type === 'Non-Veg' ? 'text-red-700 bg-red-50 ring-red-600/20 focus:ring-red-600/50' :
-                                                                                item.type === 'Alcohol' ? 'text-purple-700 bg-purple-50 ring-purple-600/20 focus:ring-purple-600/50' :
-                                                                                    'text-slate-700 bg-slate-50 ring-slate-200 focus:ring-indigo-500/50'}`}
+                                                                                item.type === 'Beverage' ? 'text-blue-700 bg-blue-50 ring-blue-600/20 focus:ring-blue-600/50' :
+                                                                                    item.type === 'Alcohol' ? 'text-purple-700 bg-purple-50 ring-purple-600/20 focus:ring-purple-600/50' :
+                                                                                        'text-slate-700 bg-slate-50 ring-slate-200 focus:ring-indigo-500/50'}`}
                                                                     value={item.type}
                                                                     onChange={(e) => {
                                                                         const newItems = [...scannedItems]
@@ -1056,6 +1146,7 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                                                     <option value="Food">Food</option>
                                                                     <option value="Veg">Veg</option>
                                                                     <option value="Non-Veg">Non-Veg</option>
+                                                                    <option value="Beverage">Beverage</option>
                                                                     <option value="Alcohol">Alcohol</option>
                                                                     <option value="Other">Other</option>
                                                                 </select>
@@ -1140,7 +1231,8 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                 <div className="space-y-3">
                                     <Label>Split Method</Label>
                                     <div className="flex gap-4">
-                                        <div className="flex-1 border rounded-xl p-3 cursor-pointer text-center transition-all font-medium ${splitType === 'equal' ? 'bg-primary/10 border-primary text-primary font-medium' : 'hover:bg-muted/50 text-foreground'}"
+                                        <div
+                                            className={`flex-1 border rounded-xl p-3 cursor-pointer text-center transition-all font-medium ${splitType === 'equal' ? 'bg-primary/10 border-primary text-primary' : 'hover:bg-muted/50 text-foreground'}`}
                                             onClick={() => setSplitType('equal')}
                                         >
                                             Equally
@@ -1157,7 +1249,46 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                 {/* Custom Splits UI */}
                                 {splitType === 'custom' && (
                                     <div className="space-y-3 bg-muted/40 p-4 rounded-xl border border-border">
-                                        <Label className="text-xs text-muted-foreground uppercase tracking-wide">Enter share for each member</Label>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <Label className="text-xs text-muted-foreground uppercase tracking-wide">Split Details</Label>
+                                            <div className="flex gap-2">
+                                                <Button type="button" size="sm" variant={customSplitMode === 'smart' ? 'default' : 'outline'} className="h-7 text-xs" onClick={() => setCustomSplitMode('smart')}>Smart</Button>
+                                                <Button type="button" size="sm" variant={customSplitMode === 'manual' ? 'default' : 'outline'} className="h-7 text-xs" onClick={() => setCustomSplitMode('manual')}>Manual</Button>
+                                            </div>
+                                        </div>
+
+                                        {customSplitMode === 'smart' && scannedItems.length > 0 && (
+                                            <div className="mb-4 space-y-2 border-b border-border pb-4">
+                                                <p className="text-xs text-muted-foreground mb-2">Select what each member had to auto-calculate their share.</p>
+                                                {group?.members.map(member => {
+                                                    const prefs = foodPrefs[member._id] || []
+                                                    const togglePref = (type: string) => {
+                                                        setFoodPrefs(prev => {
+                                                            const current = prev[member._id] || []
+                                                            return { ...prev, [member._id]: current.includes(type) ? current.filter(t => t !== type) : [...current, type] }
+                                                        })
+                                                    }
+                                                    return (
+                                                        <div key={`pref-${member._id}`} className="flex flex-col sm:flex-row sm:items-center gap-2 justify-between py-1">
+                                                            <div className="flex items-center gap-2">
+                                                                <Avatar className="h-5 w-5">
+                                                                    <AvatarImage src={member.avatar} />
+                                                                    <AvatarFallback className="text-[10px] bg-primary/10 text-primary">{member.name.charAt(0)}</AvatarFallback>
+                                                                </Avatar>
+                                                                <span className="text-sm truncate text-foreground w-20">{member.name}</span>
+                                                            </div>
+                                                            <div className="flex gap-1" style={{ width: 'fit-content' }}>
+                                                                <Button type="button" size="sm" variant={prefs.includes('Veg') ? 'default' : 'outline'} className={`h-6 text-[10px] px-2 ${prefs.includes('Veg') ? 'bg-green-600 hover:bg-green-700 text-white' : 'text-green-600 border-green-200 hover:bg-green-50'}`} onClick={() => togglePref('Veg')}>Veg</Button>
+                                                                <Button type="button" size="sm" variant={prefs.includes('Non-Veg') ? 'default' : 'outline'} className={`h-6 text-[10px] px-2 ${prefs.includes('Non-Veg') ? 'bg-red-600 hover:bg-red-700 text-white' : 'text-red-600 border-red-200 hover:bg-red-50'}`} onClick={() => togglePref('Non-Veg')}>Non-Veg</Button>
+                                                                <Button type="button" size="sm" variant={prefs.includes('Beverage') ? 'default' : 'outline'} className={`h-6 text-[10px] px-2 ${prefs.includes('Beverage') ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'text-blue-600 border-blue-200 hover:bg-blue-50'}`} onClick={() => togglePref('Beverage')}>Beverage</Button>
+                                                                <Button type="button" size="sm" variant={prefs.includes('Alcohol') ? 'default' : 'outline'} className={`h-6 text-[10px] px-2 ${prefs.includes('Alcohol') ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'text-purple-600 border-purple-200 hover:bg-purple-50'}`} onClick={() => togglePref('Alcohol')}>Alcohol</Button>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        )}
+
                                         {group?.members.map(member => (
                                             <div key={member._id} className="flex items-center gap-3">
                                                 <Avatar className="h-6 w-6">
@@ -1167,14 +1298,18 @@ export default function GroupDetailsPage({ params }: { params: Promise<{ groupId
                                                 <span className="text-sm flex-1 truncate text-foreground">{member.name}</span>
                                                 <Input
                                                     type="number"
-                                                    className="w-24 h-8 text-right"
+                                                    className={`w-24 h-8 text-right ${customSplitMode === 'smart' ? 'bg-muted opacity-80 cursor-not-allowed' : ''}`}
                                                     placeholder="0.00"
                                                     value={customSplits[member._id] || ""}
-                                                    onChange={e => setCustomSplits(prev => ({ ...prev, [member._id]: e.target.value }))}
+                                                    onChange={e => {
+                                                        setCustomSplitMode('manual')
+                                                        setCustomSplits(prev => ({ ...prev, [member._id]: e.target.value }))
+                                                    }}
+                                                    readOnly={customSplitMode === 'smart'}
                                                 />
                                             </div>
                                         ))}
-                                        <p className="text-right text-xs text-muted-foreground">
+                                        <p className="text-right text-xs text-muted-foreground mt-2">
                                             Total: ₹{Object.values(customSplits).reduce((a, b) => a + (parseFloat(b) || 0), 0).toFixed(2)} / ₹{newExpenseAmount || 0}
                                         </p>
                                     </div>

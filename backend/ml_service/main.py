@@ -85,6 +85,22 @@ def clean_item_name(name):
 
 
 # ================= ITEM EXTRACTION =================
+def sanitize_token(token):
+    token = token.replace('O', '0')
+    token = token.replace('o', '0')
+    token = token.replace('@', '0')
+    token = token.replace('%', '')
+    token = token.replace('₹', '')
+    token = token.replace(',', '')
+    token = token.strip()
+
+    # Allow flexible decimal precision (handles 150.004 etc)
+    if re.fullmatch(r'\d+(\.\d+)?', token):
+        return round(float(token), 2)
+
+    return None
+
+
 def extract_items_from_text(text):
     lines = text.split('\n')
     items = []
@@ -106,39 +122,67 @@ def extract_items_from_text(text):
         if any(k in lower for k in ignore_keywords):
             continue
 
-        line = line.replace('%', '')
-        line = line.replace('@', '')
-        line = line.replace('*', '')
-        line = line.replace(':', ' ')
-
         if not re.search(r'\d', line):
             continue
 
         if not re.search(r'[A-Za-z]', line):
             continue
 
-        nums = re.findall(r'\d+(?:\.\d{1,2})?', line)
-        nums = [float(n) for n in nums]
+        raw_tokens = line.split()
+
+        nums = []
+        non_numeric_tokens = []
+
+        for token in raw_tokens:
+            val = sanitize_token(token)
+
+            if val is not None:
+                nums.append(val)
+            else:
+                # Remove embedded numbers inside words like aadle150.00
+                cleaned = re.sub(r'\d+(\.\d+)?', '', token)
+                if cleaned.strip():
+                    non_numeric_tokens.append(cleaned)
 
         if len(nums) < 2:
             continue
 
-        nums_sorted = sorted(nums)
+        # ---- QUANTITY + AMOUNT LOGIC ----
 
-        if len(nums_sorted) >= 3:
-            quantity = nums_sorted[-2] if nums_sorted[-2] < 20 else 1
-            amount = nums_sorted[-1]
-        else:
-            quantity = nums_sorted[0] if nums_sorted[0] < 20 else 1
-            amount = nums_sorted[-1]
+        if len(nums) >= 3:
+            first, second, last = nums[0], nums[1], nums[-1]
 
-        if 1900 <= amount <= 2100:
-            continue
+            # Case 1: rate qty total
+            if second <= 20:
+                quantity = int(second)
+                amount = last
+
+            # Case 2: qty rate total
+            elif first <= 20:
+                quantity = int(first)
+                amount = last
+
+            # Case 3: unknown format
+            else:
+                quantity = 1
+                amount = last
+
+        elif len(nums) == 2:
+            first, second = nums[0], nums[1]
+
+            # If second is larger → assume rate + total
+            if second > first:
+                quantity = 1
+                amount = second
+            else:
+                quantity = int(first) if first <= 20 else 1
+                amount = second
 
         if amount < 20 or amount > 20000:
             continue
 
-        name = clean_item_name(line)
+        name = " ".join(non_numeric_tokens)
+        name = clean_item_name(name)
 
         if sum(c.isalpha() for c in name) < 3:
             continue
@@ -146,7 +190,7 @@ def extract_items_from_text(text):
         items.append({
             "name": name,
             "amount": amount,
-            "quantity": int(quantity)
+            "quantity": quantity
         })
 
     return items
@@ -237,8 +281,14 @@ def main():
             predicted_category = "Food"
 
         subtype = None
-        if predicted_category == "Food" and subtype_model:
-            subtype = subtype_model.predict([name])[0]
+        if predicted_category == "Food":
+            beverage_keywords = ["water", "soda", "cola", "pepsi", "sprite", "fanta", "juice", "lassi", "tea", "coffee", "milkshake", "shake", "buttermilk", "beverage", "drink"]
+            if any(k in name.lower() for k in beverage_keywords):
+                subtype = "Beverage"
+            elif subtype_model:
+                subtype = subtype_model.predict([name])[0]
+        elif predicted_category == "Alcohol":
+            subtype = "Alcohol"
 
         processed_items.append({
             "name": name,

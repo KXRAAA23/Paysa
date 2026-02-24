@@ -207,11 +207,87 @@ const googleAuthCallback = (req, res) => {
     res.redirect(`http://localhost:3000/oauth-success?token=${token}`);
 };
 
+// @desc    Change user password
+// @route   PUT /api/users/change-password
+// @access  Private
+const changePassword = async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user._id);
+
+    if (user && (await user.matchPassword(currentPassword))) {
+        user.password = newPassword;
+        await user.save();
+        res.json({ message: 'Password updated successfully' });
+    } else {
+        res.status(401).json({ message: 'Invalid current password' });
+    }
+};
+
+// @desc    Forgot Password (Send OTP)
+// @route   POST /api/users/forgot-password
+// @access  Public
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+
+    user.otp = otp;
+    user.otpExpiry = otpExpiry;
+    await user.save();
+
+    await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Paysa Password Reset OTP',
+        text: `Your OTP to reset your password is ${otp}. It expires in 5 minutes.`,
+    });
+
+    res.status(200).json({ message: 'OTP sent to email for password reset' });
+};
+
+// @desc    Reset Password with OTP
+// @route   POST /api/users/reset-password
+// @access  Public
+const resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+    }
+
+    if (user.otp !== otp || user.otpExpiry < Date.now()) {
+        res.status(400).json({ message: 'Invalid or expired OTP' });
+        return;
+    }
+
+    user.password = newPassword;
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+    await user.save();
+
+    res.json({ message: 'Password reset successful' });
+};
+
 export {
     registerUser,
     loginUser,
     googleAuthCallback,
     verifyOtp,
     getUserProfile,
-    updateUserProfile
+    updateUserProfile,
+    changePassword,
+    forgotPassword,
+    resetPassword
 };

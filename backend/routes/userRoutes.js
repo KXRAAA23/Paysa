@@ -7,6 +7,9 @@ import {
     verifyOtp,
     getUserProfile,
     updateUserProfile,
+    changePassword,
+    forgotPassword,
+    resetPassword
 } from '../controllers/userController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -15,6 +18,10 @@ const router = express.Router();
 router.post('/register', registerUser);
 router.post('/verify-otp', verifyOtp);
 router.post('/login', loginUser);
+
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
+router.put('/change-password', protect, changePassword);
 
 router.route('/profile')
     .get(protect, getUserProfile)
