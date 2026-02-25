@@ -42,7 +42,36 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import AITipsCard from "@/components/AITipsCard"
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+const COLORS = [
+    'hsl(252, 85%, 68%)', // Primary/Indigo
+    'hsl(173, 80%, 40%)', // Teal
+    'hsl(330, 80%, 65%)', // Pink
+    'hsl(35, 90%, 60%)',  // Amber
+    'hsl(140, 70%, 50%)', // Emerald
+    'hsl(0, 80%, 65%)',   // Rose
+];
+
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    if (percent < 0.05) return null;
+
+    return (
+        <text
+            x={x}
+            y={y}
+            fill="white"
+            textAnchor="middle"
+            dominantBaseline="central"
+            className="text-[11px] font-bold drop-shadow-md"
+        >
+            {`${(percent * 100).toFixed(0)}%`}
+        </text>
+    );
+};
 
 export default function InsightsPage() {
     const router = useRouter()
@@ -261,107 +290,109 @@ export default function InsightsPage() {
                 </Card>
             </div>
 
-            {/* Charts Section */}
-            <Tabs defaultValue="overview" className="space-y-4">
-                <TabsList>
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="categories">Categories</TabsTrigger>
-                    <TabsTrigger value="groups">Groups</TabsTrigger>
-                </TabsList>
+            {/* Unified Charts Dashboard */}
+            <div className="flex flex-col gap-6">
+                {/* Monthly Trend - Full Width */}
+                <Card className="bg-card/60 backdrop-blur-xl border-border/50 shadow-lg transition-shadow hover:shadow-xl">
+                    <CardHeader>
+                        <CardTitle>Monthly Spending Trend</CardTitle>
+                        <CardDescription>Your personal expense contributions over time</CardDescription>
+                    </CardHeader>
+                    <CardContent className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={monthlyData}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                                <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                                <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value}`} />
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: "hsl(var(--card))", borderRadius: "12px", border: "1px solid hsl(var(--border))", color: "hsl(var(--foreground))" }}
+                                    itemStyle={{ color: "hsl(var(--foreground))" }}
+                                />
+                                <Line type="monotone" dataKey="uv" stroke="hsl(252, 85%, 68%)" strokeWidth={3} activeDot={{ r: 6 }} name="Spent" />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
 
-                <TabsContent value="overview" className="space-y-4">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        {/* Monthly Trend */}
-                        <Card className="col-span-1 lg:col-span-2">
-                            <CardHeader>
-                                <CardTitle>Monthly Spending Trend</CardTitle>
-                                <CardDescription>Your personal expense contributions over time</CardDescription>
-                            </CardHeader>
-                            <CardContent className="h-[300px]">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={monthlyData}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                        <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                                        <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value}`} />
-                                        <Tooltip
-                                            contentStyle={{ backgroundColor: "hsl(var(--card))", borderRadius: "12px", border: "1px solid hsl(var(--border))", color: "hsl(var(--foreground))" }}
-                                            itemStyle={{ color: "hsl(var(--foreground))" }}
-                                        />
-                                        <Line type="monotone" dataKey="uv" stroke="hsl(252, 85%, 68%)" strokeWidth={3} activeDot={{ r: 6 }} name="Spent" />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </TabsContent>
-
-                <TabsContent value="categories" className="space-y-4">
-                    <Card>
+                {/* Categories & Groups - Side by Side on Large Screens */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Categories */}
+                    <Card className="bg-card/60 backdrop-blur-xl border-border/50 shadow-lg transition-shadow hover:shadow-xl flex flex-col">
                         <CardHeader>
                             <CardTitle>Spending by Category</CardTitle>
                             <CardDescription>Where your money goes</CardDescription>
                         </CardHeader>
-                        <CardContent className="h-[400px] flex items-center justify-center">
+                        <CardContent className="h-[350px] flex items-center justify-center flex-1">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
                                         data={categoryData}
                                         cx="50%"
                                         cy="50%"
-                                        innerRadius={80}
-                                        outerRadius={120}
+                                        innerRadius={60}
+                                        outerRadius={100}
                                         fill="#8884d8"
                                         paddingAngle={5}
                                         dataKey="value"
-                                        label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                                        stroke="none"
+                                        cornerRadius={8}
+                                        labelLine={false}
+                                        label={renderCustomizedLabel}
                                     >
                                         {categoryData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <Tooltip />
-                                    <Legend />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: "var(--card)", borderRadius: "12px", border: "1px solid var(--border)", color: "var(--foreground)" }}
+                                        itemStyle={{ color: "var(--foreground)" }}
+                                        formatter={(value: any) => [`₹${(Number(value) || 0).toFixed(0)}`, undefined]}
+                                    />
                                 </PieChart>
                             </ResponsiveContainer>
                         </CardContent>
-                        <CardFooter className="flex-col gap-2 text-sm text-center text-muted-foreground">
-                            <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+                        <CardFooter className="flex-col gap-2 text-sm text-center text-muted-foreground pb-6">
+                            <div className="grid grid-cols-2 gap-4 w-full max-w-md mx-auto">
                                 {categoryData.slice(0, 4).map((cat, i) => (
-                                    <div key={cat.name} className="flex justify-between items-center border-b pb-1">
+                                    <div key={cat.name} className="flex justify-between items-center border-b border-border/50 pb-1">
                                         <span className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                                            <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
                                             {cat.name}
                                         </span>
-                                        <span className="font-semibold">₹{cat.value.toFixed(0)}</span>
+                                        <span className="font-semibold text-foreground">₹{cat.value.toFixed(0)}</span>
                                     </div>
                                 ))}
                             </div>
                         </CardFooter>
                     </Card>
-                </TabsContent>
 
-                <TabsContent value="groups" className="space-y-4">
-                    <Card>
+                    {/* Groups */}
+                    <Card className="bg-card/60 backdrop-blur-xl border-border/50 shadow-lg transition-shadow hover:shadow-xl">
                         <CardHeader>
                             <CardTitle>Group vs Individual Spending</CardTitle>
                             <CardDescription>How much you contribute vs total group activity</CardDescription>
                         </CardHeader>
-                        <CardContent className="h-[400px]">
+                        <CardContent className="h-[350px]">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={groupData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                                     <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                                    <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} />
+                                    <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value}`} />
+                                    <Tooltip
+                                        cursor={{ fill: 'rgba(150, 150, 150, 0.1)' }}
+                                        contentStyle={{ backgroundColor: "var(--card)", borderRadius: "12px", border: "1px solid var(--border)", color: "var(--foreground)" }}
+                                        itemStyle={{ color: "var(--foreground)" }}
+                                        formatter={(value: any) => [`₹${(Number(value) || 0).toFixed(0)}`, undefined]}
+                                    />
                                     <Legend />
                                     <Bar dataKey="MySpend" name="My Share" fill="hsl(252, 85%, 68%)" radius={[4, 4, 0, 0]} maxBarSize={50} />
-                                    <Bar dataKey="TotalGroup" name="Total Group Spending" fill="hsl(220, 8%, 30%)" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                                    <Bar dataKey="TotalGroup" name="Total Group Spending" fill="#94a3b8" radius={[4, 4, 0, 0]} maxBarSize={50} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
-                </TabsContent>
-            </Tabs>
+                </div>
+            </div>
         </div>
     )
 }

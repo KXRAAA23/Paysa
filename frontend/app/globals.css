@@ -52,15 +52,15 @@
 :root {
   --radius: 0.625rem;
 
-  /* Core */
-  --background: hsl(220, 20%, 97%);
-  --foreground: hsl(222, 25%, 10%);
+  /* Core - Soft warmer grey/neutral */
+  --background: hsl(220, 14%, 96%);
+  --foreground: hsl(222, 25%, 15%);
 
   /* Surface elevation */
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(222, 25%, 10%);
+  --card-foreground: hsl(222, 25%, 15%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(222, 25%, 10%);
+  --popover-foreground: hsl(222, 25%, 15%);
 
   /* Brand */
   --primary: hsl(252, 75%, 58%);
@@ -74,7 +74,7 @@
 
   /* Accent */
   --accent: hsl(220, 14%, 93%);
-  --accent-foreground: hsl(252, 75%, 50%);
+  --accent-foreground: hsl(252, 75%, 58%);
 
   /* Semantic */
   --destructive: hsl(0, 80%, 55%);
@@ -92,9 +92,9 @@
   --chart-4: hsl(328, 78%, 60%);
   --chart-5: hsl(195, 80%, 50%);
 
-  /* Sidebar — same tone as background */
-  --sidebar: hsl(220, 20%, 96%);
-  --sidebar-foreground: hsl(222, 25%, 10%);
+  /* Sidebar */
+  --sidebar: hsl(220, 14%, 96%);
+  --sidebar-foreground: hsl(222, 25%, 15%);
   --sidebar-primary: hsl(252, 75%, 58%);
   --sidebar-primary-foreground: hsl(0, 0%, 100%);
   --sidebar-accent: hsl(220, 14%, 90%);
@@ -103,48 +103,48 @@
   --sidebar-ring: hsl(252, 75%, 58%);
 
   /* Shadow scale */
-  --shadow-xs: 0 1px 2px 0 hsl(220 14% 10% / 0.05);
-  --shadow-sm: 0 1px 3px 0 hsl(220 14% 10% / 0.08), 0 1px 2px -1px hsl(220 14% 10% / 0.06);
-  --shadow-md: 0 4px 6px -1px hsl(220 14% 10% / 0.08), 0 2px 4px -2px hsl(220 14% 10% / 0.06);
-  --shadow-lg: 0 10px 15px -3px hsl(220 14% 10% / 0.08), 0 4px 6px -4px hsl(220 14% 10% / 0.05);
-  --shadow-xl: 0 20px 25px -5px hsl(220 14% 10% / 0.1), 0 8px 10px -6px hsl(220 14% 10% / 0.06);
+  --shadow-xs: 0 1px 2px 0 hsl(220 14% 10% / 0.03);
+  --shadow-sm: 0 1px 3px 0 hsl(220 14% 10% / 0.05), 0 1px 2px -1px hsl(220 14% 10% / 0.03);
+  --shadow-md: 0 4px 6px -1px hsl(220 14% 10% / 0.05), 0 2px 4px -2px hsl(220 14% 10% / 0.04);
+  --shadow-lg: 0 10px 15px -3px hsl(220 14% 10% / 0.06), 0 4px 6px -4px hsl(220 14% 10% / 0.03);
+  --shadow-xl: 0 20px 25px -5px hsl(220 14% 10% / 0.08), 0 8px 10px -6px hsl(220 14% 10% / 0.04);
 }
 
 /* ============================================================
-   DARK MODE — Charcoal grey, NOT blue-black
+   DARK MODE — Layered greys, NO pure black
    ============================================================ */
 .dark {
   /* Core */
-  --background: hsl(224, 10%, 10%);
+  --background: hsl(0, 0%, 9%);
   --foreground: hsl(216, 20%, 90%);
 
-  /* Surface elevation — cards are lighter than bg */
-  --card: hsl(224, 10%, 14%);
+  /* Surface elevation */
+  --card: hsl(0, 0%, 13%);
   --card-foreground: hsl(216, 20%, 90%);
-  --popover: hsl(224, 10%, 14%);
+  --popover: hsl(0, 0%, 13%);
   --popover-foreground: hsl(216, 20%, 90%);
 
-  /* Brand — brighter for dark bg */
+  /* Brand */
   --primary: hsl(252, 85%, 68%);
   --primary-foreground: hsl(0, 0%, 100%);
 
   /* Secondary / Muted surfaces */
-  --secondary: hsl(224, 8%, 18%);
+  --secondary: hsl(0, 0%, 16%);
   --secondary-foreground: hsl(216, 20%, 80%);
-  --muted: hsl(224, 8%, 18%);
-  --muted-foreground: hsl(216, 12%, 58%);
+  --muted: hsl(0, 0%, 16%);
+  --muted-foreground: hsl(216, 12%, 65%);
 
   /* Accent */
-  --accent: hsl(224, 8%, 20%);
-  --accent-foreground: hsl(252, 85%, 74%);
+  --accent: hsl(0, 0%, 18%);
+  --accent-foreground: hsl(252, 85%, 68%);
 
   /* Semantic */
   --destructive: hsl(0, 72%, 55%);
   --destructive-foreground: hsl(0, 0%, 100%);
 
   /* Borders & rings */
-  --border: hsl(224, 8%, 22%);
-  --input: hsl(224, 8%, 20%);
+  --border: hsl(0, 0%, 20%);
+  --input: hsl(0, 0%, 20%);
   --ring: hsl(252, 85%, 68%);
 
   /* Charts */
@@ -154,22 +154,22 @@
   --chart-4: hsl(328, 75%, 65%);
   --chart-5: hsl(195, 80%, 55%);
 
-  /* Sidebar — slightly darker than card bg */
-  --sidebar: hsl(224, 10%, 8%);
+  /* Sidebar */
+  --sidebar: hsl(0, 0%, 8%);
   --sidebar-foreground: hsl(216, 20%, 90%);
   --sidebar-primary: hsl(252, 85%, 68%);
   --sidebar-primary-foreground: hsl(0, 0%, 100%);
-  --sidebar-accent: hsl(224, 8%, 18%);
-  --sidebar-accent-foreground: hsl(252, 85%, 74%);
-  --sidebar-border: hsl(224, 8%, 18%);
+  --sidebar-accent: hsl(0, 0%, 16%);
+  --sidebar-accent-foreground: hsl(252, 85%, 68%);
+  --sidebar-border: hsl(0, 0%, 16%);
   --sidebar-ring: hsl(252, 85%, 68%);
 
   /* Shadow scale */
-  --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
-  --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.25), 0 1px 2px -1px hsl(0 0% 0% / 0.2);
-  --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.2);
-  --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.3), 0 4px 6px -4px hsl(0 0% 0% / 0.2);
-  --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.4), 0 8px 10px -6px hsl(0 0% 0% / 0.3);
+  --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
+  --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.4), 0 1px 2px -1px hsl(0 0% 0% / 0.3);
+  --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
+  --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.5), 0 4px 6px -4px hsl(0 0% 0% / 0.3);
+  --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.6), 0 8px 10px -6px hsl(0 0% 0% / 0.4);
 }
 
 /* ============================================================
@@ -190,6 +190,9 @@
 
   body {
     @apply bg-background text-foreground font-sans;
+    background-image: radial-gradient(circle at top center, hsl(var(--primary) / 0.04), transparent 60%),
+                      radial-gradient(circle at bottom right, hsl(var(--chart-4) / 0.04), transparent 60%);
+    background-attachment: fixed;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     line-height: 1.6;
   }
@@ -198,7 +201,7 @@
   *,
   *::before,
   *::after {
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
   }
 
   /* Exclude transitions on interactive elements where they'd feel slow */
@@ -212,19 +215,19 @@
 
   /* Typography hierarchy */
   h1 {
-    @apply text-5xl font-bold tracking-tight leading-tight;
+    @apply text-5xl font-extrabold tracking-tight leading-tight;
   }
 
   h2 {
-    @apply text-4xl font-bold tracking-tight leading-tight;
+    @apply text-4xl font-extrabold tracking-tight leading-tight;
   }
 
   h3 {
-    @apply text-3xl font-semibold tracking-tight;
+    @apply text-3xl font-bold tracking-tight;
   }
 
   h4 {
-    @apply text-2xl font-semibold;
+    @apply text-2xl font-bold;
   }
 
   h5 {

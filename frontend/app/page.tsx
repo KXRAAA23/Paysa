@@ -83,31 +83,115 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row gap-5 pt-2 animate-in fade-in slide-in-from-bottom-7 duration-1000 delay-300">
             <Link href="/login">
-              <Button size="xl" className="rounded-full px-10 shadow-[0_0_30px_hsl(var(--primary)/0.35)] hover:shadow-[0_0_50px_hsl(var(--primary)/0.5)] transition-shadow">
-                Get Started <ArrowRight className="ml-2 h-5 w-5" />
+              <Button size="xl" className="rounded-full px-10 relative group shadow-[0_0_30px_hsl(var(--primary)/0.35)] hover:shadow-[0_0_50px_hsl(var(--primary)/0.5)] transition-shadow">
+                <span className="relative z-10 flex items-center">
+                  Get Started <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </span>
+                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full scale-110 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </Button>
             </Link>
             <Link href="/register">
-              <Button variant="outline" size="xl" className="rounded-full px-10 border-border/60 hover:border-primary/40 bg-card/50 backdrop-blur-sm transition-all">
+              <Button variant="outline" size="xl" className="rounded-full px-10 border-border/60 hover:border-primary/40 bg-card/50 backdrop-blur-sm transition-all hover:bg-card/80">
                 Create Account
               </Button>
             </Link>
           </div>
 
-          {/* Dashboard Preview Card */}
-          <div className="mt-16 w-full max-w-4xl perspective-[2000px]">
-            <div className="relative rounded-2xl border border-border/50 bg-card/60 backdrop-blur-xl p-2 shadow-2xl transform rotate-x-12 hover:rotate-x-0 transition-transform duration-700 ease-out group">
-              <div className="absolute inset-0 bg-gradient-to-tr from-primary/8 to-purple-500/5 rounded-2xl pointer-events-none" />
-              <div className="rounded-xl overflow-hidden bg-background/80 aspect-[16/9] relative flex items-center justify-center border border-border/30">
-                <img
-                  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1600"
-                  alt="Dashboard Preview"
-                  className="w-full h-full object-cover opacity-70 dark:opacity-50 group-hover:opacity-90 dark:group-hover:opacity-70 transition-opacity duration-500"
-                />
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="bg-card/80 backdrop-blur-md border border-border/60 p-6 rounded-2xl shadow-2xl flex flex-col items-center gap-4">
-                    <ScanLine className="h-12 w-12 text-primary" />
-                    <div className="text-xl font-bold text-gradient">Scanning Receipt...</div>
+          {/* Dashboard Preview - Abstract Glowing Chart & Glassmorphism */}
+          <div className="mt-16 w-full max-w-4xl animate-in fade-in zoom-in-95 duration-1000 delay-500">
+            <div className="relative rounded-[2rem] border border-border/50 bg-card/10 backdrop-blur-3xl p-2 shadow-2xl hover:shadow-[0_20px_80px_-20px_hsl(var(--primary)/0.4)] transition-shadow duration-700">
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-purple-500/10 rounded-[2rem] pointer-events-none" />
+
+              <div className="rounded-[1.5rem] overflow-hidden bg-background/40 aspect-[16/9] relative flex items-center justify-center border border-border/40 shadow-inner">
+                {/* Background Grid */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20" />
+
+                {/* Animated Glowing Chart SVG */}
+                <div className="absolute inset-x-0 bottom-0 top-[20%] w-full h-full overflow-hidden opacity-80 mix-blend-screen dark:mix-blend-plus-lighter">
+                  <svg className="w-full h-full drop-shadow-[0_0_15px_hsl(var(--primary))]" viewBox="0 0 1000 400" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="chart-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.5" />
+                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+                      </linearGradient>
+                      <filter id="glow">
+                        <feGaussianBlur stdDeviation="8" result="coloredBlur" />
+                        <feMerge>
+                          <feMergeNode in="coloredBlur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                    </defs>
+                    <path
+                      d="M0,400 L0,300 C100,300 150,150 250,200 C350,250 400,100 500,150 C600,200 650,50 750,100 C850,150 900,300 1000,200 L1000,400 Z"
+                      fill="url(#chart-gradient)"
+                      className="animate-[fade-in_2s_ease-out]"
+                    />
+                    <path
+                      d="M0,300 C100,300 150,150 250,200 C350,250 400,100 500,150 C600,200 650,50 750,100 C850,150 900,300 1000,200"
+                      fill="none"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth="4"
+                      filter="url(#glow)"
+                      className="dash-draw"
+                      style={{ strokeDasharray: 1500, strokeDashoffset: 1500, animation: 'dash 3s ease-out forwards 0.5s' }}
+                    />
+                    <circle cx="750" cy="100" r="8" fill="hsl(var(--background))" stroke="hsl(var(--primary))" strokeWidth="4" className="animate-in zoom-in duration-500 delay-[2500ms] fill-mode-both drop-shadow-[0_0_10px_hsl(var(--primary))]" />
+                  </svg>
+                  <style jsx>{`
+                    @keyframes dash {
+                      to {
+                        stroke-dashoffset: 0;
+                      }
+                    }
+                  `}</style>
+                </div>
+
+                {/* Central Glassmorphic Interface */}
+                <div className="relative z-10 w-full max-w-lg bg-card/60 backdrop-blur-2xl border border-border/50 rounded-2xl p-6 shadow-2xl flex flex-col gap-6 transform hover:scale-[1.02] transition-transform duration-500">
+                  <div className="flex flex-col items-center justify-between border-b border-border/50 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-lg shadow-primary/20">
+                        <TrendingUp className="text-white w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-lg text-foreground">Total Group Spend</div>
+                        <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">This Month</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-black text-2xl text-foreground tracking-tight">₹4,250.75</div>
+                      <div className="text-xs text-green-500 font-medium flex items-center justify-end gap-1">
+                        <TrendingUp className="w-3 h-3" /> +12.5%
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-background/50 rounded-xl p-4 border border-border/30">
+                      <div className="text-muted-foreground text-xs font-semibold mb-1">Your Share</div>
+                      <div className="text-foreground font-bold text-xl">₹850.15</div>
+                      <div className="w-full h-1.5 bg-muted rounded-full mt-2 overflow-hidden">
+                        <div className="w-1/5 h-full bg-primary rounded-full shadow-[0_0_10px_hsl(var(--primary))]"></div>
+                      </div>
+                    </div>
+                    <div className="bg-background/50 rounded-xl p-4 border border-border/30">
+                      <div className="text-muted-foreground text-xs font-semibold mb-1">Owed to You</div>
+                      <div className="text-foreground font-bold text-xl">₹320.50</div>
+                      <div className="w-full h-1.5 bg-muted rounded-full mt-2 overflow-hidden">
+                        <div className="w-1/3 h-full bg-green-500 rounded-full shadow-[0_0_10px_#22c55e]"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-2 pt-4 border-t border-border/30">
+                    <div className="flex -space-x-2">
+                      <div className="w-8 h-8 rounded-full border-2 border-background saturate-150 bg-gradient-to-tr from-blue-400 to-blue-600" />
+                      <div className="w-8 h-8 rounded-full border-2 border-background saturate-150 bg-gradient-to-tr from-emerald-400 to-emerald-600" />
+                      <div className="w-8 h-8 rounded-full border-2 border-background saturate-150 bg-gradient-to-tr from-amber-400 to-amber-600" />
+                      <div className="w-8 h-8 rounded-full border-2 border-background saturate-150 bg-muted flex items-center justify-center text-[10px] font-bold">+4</div>
+                    </div>
+                    <Button size="sm" className="rounded-full shadow-lg shadow-primary/20">Settle Up</Button>
                   </div>
                 </div>
               </div>

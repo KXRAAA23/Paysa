@@ -23,30 +23,33 @@ const AITipsCard: React.FC<{ tip: Tip }> = ({ tip }) => {
 
     const getBgColor = () => {
         switch (tip.type) {
-            case 'warning': return 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-800/30';
-            case 'insight': return 'bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-800/30';
-            case 'saving': return 'bg-green-50 dark:bg-green-900/10 border-green-100 dark:border-green-800/30';
-            case 'positive': return 'bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/30';
-            default: return 'bg-gray-50 dark:bg-gray-900/10';
+            case 'warning': return 'bg-red-500/10 dark:bg-red-900/20 border-red-500/20';
+            case 'insight': return 'bg-amber-500/10 dark:bg-amber-900/20 border-amber-500/20';
+            case 'saving': return 'bg-green-500/10 dark:bg-green-900/20 border-green-500/20';
+            case 'positive': return 'bg-blue-500/10 dark:bg-blue-900/20 border-blue-500/20';
+            default: return 'bg-card/40 dark:bg-card/40 border-border/50';
         }
     };
 
     return (
-        <Card className={`border shadow-sm ${getBgColor()}`}>
-            <CardContent className="p-4 flex items-start gap-4">
-                <div className="mt-1 flex-shrink-0">
+        <Card className={`border shadow-lg backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${getBgColor()}`}>
+            <CardContent className="p-5 flex items-start gap-4 h-full">
+                <div className="mt-1 flex-shrink-0 p-2 rounded-full bg-background/50 shadow-sm border border-border/30">
                     {getIcon()}
                 </div>
-                <div className="flex-1">
-                    <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-100 mb-1">
-                        {tip.title}
-                    </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                        {tip.description}
-                    </p>
+                <div className="flex-1 flex flex-col justify-between h-full">
+                    <div>
+                        <h4 className="font-bold text-sm text-foreground mb-1.5 leading-snug">
+                            {tip.title}
+                        </h4>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                            {tip.description}
+                        </p>
+                    </div>
                     {tip.action && (
-                        <button className="mt-2 text-xs font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 transition-colors">
-                            {tip.action} →
+                        <button className="mt-4 text-xs font-semibold text-primary hover:text-primary/80 transition-colors flex items-center gap-1 w-fit group">
+                            {tip.action}
+                            <span className="transition-transform group-hover:translate-x-1">→</span>
                         </button>
                     )}
                 </div>
